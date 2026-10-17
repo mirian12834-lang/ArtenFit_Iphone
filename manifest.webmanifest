@@ -1,17 +1,17 @@
 {
   "id": "./",
-  "name": "Meu Treino — Academia",
-  "short_name": "Meu Treino",
-  "description": "Organize seus treinos da semana e acompanhe as cargas dos exercícios.",
+  "name": "MeuTreino",
+  "short_name": "MeuTreino",
+  "description": "Organize seus treinos, acompanhe seu progresso e registre seu histórico.",
   "lang": "pt-BR",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#071827",
-  "theme_color": "#071827",
+  "background_color": "#001930",
+  "theme_color": "#001930",
   "icons": [
-    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }

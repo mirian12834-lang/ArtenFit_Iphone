@@ -1,0 +1,14 @@
+MEUTREINO PARA IPHONE (GITHUB PAGES)
+
+1. Extraia este ZIP.
+2. Envie TODOS os arquivos e a pasta icons para a raiz do repositório GitHub Pages (substituindo o index.html antigo).
+3. Faça commit e aguarde o GitHub Pages publicar o site em HTTPS.
+4. No iPhone, abra o endereço publicado no Safari (não no navegador interno do Instagram/WhatsApp).
+5. Toque em Compartilhar -> Adicionar à Tela de Início.
+6. Se aparecer a opção, habilite "Abrir como app" e toque em Adicionar.
+
+IMPORTANTE
+- O app usa localStorage para manter exercícios, pesos e histórico no armazenamento local do dispositivo/navegador.
+- O armazenamento do app adicionado à Tela de Início pode ser separado do armazenamento usado ao navegar no site pelo Safari. Use o ícone da Tela de Início para acessar sempre a mesma instalação.
+- O gráfico Chart.js é carregado de uma CDN e precisa de internet para ser baixado. O restante da interface tem cache básico, mas o funcionamento totalmente offline do gráfico não é garantido.
+- Para atualizar o app após publicar alterações, abra o site novamente e recarregue; pode ser necessário fechar e reabrir o ícone da Tela de Início.

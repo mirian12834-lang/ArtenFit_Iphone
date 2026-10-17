@@ -3,692 +3,1683 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#071827">
+  <meta name="theme-color" content="#001930">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MeuTreino">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Meu Treino">
+  <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-  <meta name="description" content="Organize seus treinos da semana e acompanhe os pesos de cada exercício, direto no celular.">
-  <title>Meu Treino — Academia</title>
+  <meta name="description" content="Treinos de academia organizados por dia, com pesos salvos no navegador, progresso e histórico.">
+  <title>MeuTreino</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
       color-scheme: dark;
-      --bg: #071827;
-      --bg-glow: #0a2638;
-      --surface: #0d2233;
-      --surface-2: #122b3e;
-      --surface-3: #18364a;
-      --text: #effaff;
-      --muted: #9bb6c5;
-      --border: rgba(151, 200, 220, .15);
-      --accent: #43d9f2;
-      --accent-strong: #13b8d5;
-      --accent-soft: rgba(67, 217, 242, .12);
-      --danger: #ff7388;
-      --danger-soft: rgba(255, 115, 136, .11);
-      --shadow: 0 16px 38px rgba(0, 0, 0, .20);
-      --input-bg: rgba(2, 14, 24, .34);
-      --ring: rgba(67, 217, 242, .34);
+      --bg: #001930;
+      --bg2: #002548;
+      --surface: #002548;
+      --surface-2: #002548;
+      --surface-3: #002c53;
+      --card: #002548;
+      --card-strong: #002f5a;
+      --text: #eef7fb;
+      --muted: #92acb9;
+      --line: rgba(152, 208, 227, .12);
+      --accent: #00e5ff;
+      --accent-2: #00adb5;
+      --accent-soft: rgba(0, 229, 255, .11);
+      --danger: #ff7589;
+      --danger-soft: rgba(255, 117, 137, .12);
+      --shadow: 0 18px 42px rgba(0, 0, 0, .22);
+      --field: rgba(4, 17, 24, .34);
+      --ring: rgba(69, 219, 246, .30);
     }
 
     :root[data-theme="light"] {
       color-scheme: light;
-      --bg: #f2f7fa;
-      --bg-glow: #e5f7fb;
+      --bg: #eef4f8;
+      --bg2: #e3eef4;
       --surface: #ffffff;
-      --surface-2: #f4f8fb;
-      --surface-3: #eaf2f6;
-      --text: #122b3a;
-      --muted: #607888;
-      --border: rgba(25, 68, 91, .13);
-      --accent: #087f9b;
-      --accent-strong: #056b83;
-      --accent-soft: rgba(8, 127, 155, .09);
-      --danger: #c83c57;
-      --danger-soft: rgba(200, 60, 87, .08);
-      --shadow: 0 14px 32px rgba(33, 72, 94, .08);
-      --input-bg: #f7fafc;
-      --ring: rgba(8, 127, 155, .23);
+      --surface-2: #f6fafc;
+      --surface-3: #e8f1f6;
+      --card: #ffffff;
+      --card-strong: #f5f9fb;
+      --text: #103242;
+      --muted: #5d7381;
+      --line: rgba(17, 56, 74, .12);
+      --accent: #087f9a;
+      --accent-2: #055d72;
+      --accent-soft: rgba(8, 127, 154, .09);
+      --danger: #c63d5a;
+      --danger-soft: rgba(198, 61, 90, .08);
+      --shadow: 0 16px 34px rgba(24, 66, 88, .09);
+      --field: #f7fbfd;
+      --ring: rgba(8, 127, 154, .24);
     }
 
     * { box-sizing: border-box; }
-    html { min-height: 100%; scroll-behavior: smooth; }
+    html { min-height: 100%; }
     body {
       margin: 0;
       min-height: 100vh;
       background:
-        radial-gradient(ellipse at 88% 0%, var(--bg-glow) 0, transparent 36rem),
+        radial-gradient(circle at 100% 0%, rgba(69, 219, 246, .11), transparent 30%),
+        radial-gradient(circle at 0% 100%, rgba(22, 184, 216, .08), transparent 28%),
         var(--bg);
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       -webkit-font-smoothing: antialiased;
-      line-height: 1.45;
-      transition: background-color .2s ease, color .2s ease;
+      text-rendering: optimizeLegibility;
+      line-height: 1.42;
+      overflow-x: hidden;
     }
 
-    button, input { font: inherit; }
+    button, input, select { font: inherit; }
     button { -webkit-tap-highlight-color: transparent; }
-    button:focus-visible, input:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid var(--ring);
+      outline-offset: 2px;
+    }
 
     .app-header {
       position: sticky;
       top: 0;
       z-index: 20;
-      padding: max(12px, env(safe-area-inset-top)) 16px 12px;
-      border-bottom: 1px solid var(--border);
-      background: color-mix(in srgb, var(--bg) 90%, transparent);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      border-bottom: 1px solid var(--line);
+      padding: max(12px, env(safe-area-inset-top)) 0 14px;
+    }
+
+    .shell {
+      width: min(100% - 28px, 720px);
+      margin: 0 auto;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .title-wrap {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-size: .69rem;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.95rem, 8vw, 2.65rem);
+      line-height: .98;
+      letter-spacing: -.07em;
+      font-weight: 900;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .theme-toggle {
+      width: 46px;
+      height: 46px;
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      color: var(--text);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      flex: 0 0 auto;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+
+    .theme-toggle:active { transform: scale(.97); }
+    .theme-toggle svg { width: 20px; height: 20px; }
+
+    main {
+      padding: 18px 0 calc(34px + env(safe-area-inset-bottom));
+    }
+
+    .day-strip {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 6px 1px 12px;
+      margin: 4px -1px 16px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .day-strip::-webkit-scrollbar { display: none; }
+
+    .day-card {
+      flex: 0 0 auto;
+      width: 72px;
+      min-height: 72px;
+      scroll-snap-align: start;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      color: var(--muted);
+      cursor: pointer;
+      box-shadow: 0 8px 26px rgba(0, 0, 0, .06);
+      display: grid;
+      place-items: center;
+      padding: 10px 8px;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+
+    .day-card:active { transform: scale(.98); }
+    .day-card .short {
+      display: block;
+      text-align: center;
+      font-size: .84rem;
+      letter-spacing: .08em;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .day-card .count {
+      display: block;
+      margin-top: 3px;
+      text-align: center;
+      font-size: .7rem;
+      line-height: 1.1;
+      color: var(--muted);
+    }
+    .day-card[aria-selected="true"] {
+      color: var(--text);
+      border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(69,219,246,.18), rgba(18,51,69,.95));
+      box-shadow: 0 12px 30px rgba(69, 219, 246, .10), inset 0 0 0 1px rgba(69,219,246,.12);
+    }
+    .day-card[aria-selected="true"] .short { color: var(--accent); }
+
+    .section-title {
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .section-title h2 {
+      margin: 0;
+      font-size: .92rem;
+      letter-spacing: .02em;
+      font-weight: 800;
+    }
+    .section-title span {
+      color: var(--muted);
+      font-size: .74rem;
+    }
+
+    .progress-block {
+      margin: 4px 0 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      box-shadow: var(--shadow);
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .progress-row strong {
+      font-size: .88rem;
+      font-weight: 850;
+    }
+    .progress-row .meta {
+      color: var(--muted);
+      font-size: .78rem;
+      white-space: nowrap;
+    }
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(120, 150, 165, .14);
+      border: 1px solid rgba(120, 150, 165, .12);
+    }
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #43d9f2, #13b8d5);
+      box-shadow: 0 0 16px rgba(67, 217, 242, .22);
+      transition: width .2s ease;
+    }
+
+    .exercise-list {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .exercise-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, .10);
+      padding: 14px;
+    }
+
+    .exercise-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .done-wrap {
+      position: relative;
+      width: 26px;
+      height: 26px;
+      flex: 0 0 26px;
+      margin-top: 3px;
+    }
+    .done-wrap input {
+      position: absolute;
+      inset: 0;
+      margin: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .done-wrap span {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      border: 1.5px solid rgba(149, 196, 210, .35);
+      background: rgba(255, 255, 255, .02);
+      transition: .15s ease;
+    }
+    .done-wrap span::after {
+      content: "";
+      width: 8px;
+      height: 4px;
+      border-left: 2px solid transparent;
+      border-bottom: 2px solid transparent;
+      transform: rotate(-45deg) translate(-1px, -1px);
+    }
+    .done-wrap input:checked + span {
+      border-color: var(--accent);
+      background: rgba(67, 217, 242, .12);
+      box-shadow: 0 0 0 3px rgba(67, 217, 242, .10);
+    }
+    .done-wrap input:checked + span::after {
+      border-left-color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .exercise-name {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      padding: 1px 0 0;
+      margin: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 850;
+      letter-spacing: -.03em;
+    }
+    .exercise-name::placeholder { color: rgba(210, 225, 230, .7); }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: transparent;
+      color: var(--muted);
+      flex: 0 0 auto;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+    .icon-btn:hover,
+    .icon-btn:active {
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+    .icon-btn svg { width: 18px; height: 18px; }
+
+    .exercise-fields {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .mini-field label {
+      display: block;
+      margin: 0 0 5px 2px;
+      font-size: .66rem;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .mini-field input {
+      width: 100%;
+      min-width: 0;
+      min-height: 42px;
+      border: 1px solid rgba(145, 185, 200, .20);
+      border-radius: 14px;
+      background: rgba(3, 14, 20, .20);
+      color: var(--text);
+      padding: 10px 11px;
+      font-size: .9rem;
+      font-weight: 700;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .mini-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--ring);
+      background: rgba(255, 255, 255, .02);
+    }
+    :root[data-theme="light"] .mini-field input {
+      background: #f7fbfd;
+    }
+
+    .rest-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .rest-btn,
+    .skip-btn {
+      border: 0;
+      cursor: pointer;
+      font-weight: 800;
+      border-radius: 999px;
+      transition: transform .15s ease, background .15s ease, color .15s ease, opacity .15s ease;
+    }
+
+    .rest-btn {
+      min-height: 32px;
+      padding: 0 12px;
+      font-size: .77rem;
+      color: var(--accent);
+      background: rgba(67, 217, 246, .10);
+      border: 1px solid rgba(67, 217, 246, .15);
+    }
+    .rest-btn:active { transform: scale(.98); }
+
+    .skip-btn {
+      min-height: 30px;
+      padding: 0 10px;
+      font-size: .72rem;
+      color: var(--muted);
+      background: transparent;
+    }
+    .skip-btn:hover { color: var(--text); }
+
+    .rest-btn.is-running {
+      color: var(--text);
+      background: linear-gradient(90deg, rgba(67,217,246,.24), rgba(22,184,216,.18));
+      border-color: rgba(67, 217, 246, .28);
+    }
+
+    .empty-card {
+      padding: 26px 16px;
+      text-align: center;
+      border-radius: 24px;
+      border: 1px dashed var(--line);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      color: var(--muted);
+    }
+    .empty-card strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .bottom-panel {
+      margin-top: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      box-shadow: var(--shadow);
+    }
+
+    .timer-bar {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .timer-display {
+      min-width: 96px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(67, 217, 246, .22);
+      background: rgba(67, 217, 246, .08);
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-align: center;
+    }
+
+    .timer-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .primary-btn,
+    .ghost-btn {
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 14px;
+      border: 0;
+      font-weight: 850;
+      cursor: pointer;
+      transition: transform .15s ease, filter .15s ease, opacity .15s ease;
+    }
+    .primary-btn:active,
+    .ghost-btn:active { transform: scale(.985); }
+
+    .primary-btn {
+      color: #06222c;
+      background: linear-gradient(90deg, #67e8f9, var(--accent));
+      box-shadow: 0 12px 22px rgba(67, 217, 246, .18);
+    }
+    :root[data-theme="light"] .primary-btn { color: #fff; }
+    .ghost-btn {
+      color: var(--text);
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid var(--line);
+    }
+
+    .progress-mini {
+      margin-top: 10px;
+    }
+
+    .footer-title {
+      margin: 0 0 10px;
+      font-size: .82rem;
+      letter-spacing: .03em;
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .footer-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .add-form {
+      display: grid;
+      gap: 8px;
+    }
+    .add-form .row {
+      display: grid;
+      grid-template-columns: 1.4fr .7fr .7fr;
+      gap: 8px;
+    }
+    .add-form .row-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    .add-form label {
+      display: block;
+      margin: 0 0 5px 2px;
+      color: var(--muted);
+      font-size: .66rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-weight: 800;
+    }
+    .add-form input {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid rgba(145, 185, 200, .20);
+      border-radius: 14px;
+      background: var(--field);
+      color: var(--text);
+      padding: 10px 11px;
+      outline: none;
+      font-size: .92rem;
+      font-weight: 700;
+    }
+    .add-form input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .bottom-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .bottom-actions .ghost-btn,
+    .bottom-actions .primary-btn {
+      min-height: 44px;
+      border-radius: 14px;
+    }
+
+    .stats-btn {
+      width: 100%;
+      margin-top: 2px;
+      min-height: 46px;
+    }
+
+    .note {
+      margin: 0;
+      color: var(--muted);
+      font-size: .75rem;
+      text-align: center;
+    }
+
+    .bottom-panel { margin-top: 18px; padding-bottom: 12px; }
+    .utility-bar {
+      position: fixed;
+      z-index: 50;
+      left: 0; right: 0; bottom: 0;
+      display: grid;
+      grid-template-columns: auto 1fr 1fr;
+      align-items: center;
+      gap: 8px;
+      padding: 10px max(14px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+      background: rgba(0, 25, 48, 0.7);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(0, 229, 255, .16);
+    }
+    .utility-timer {
+      color: var(--text); font-size: .78rem; font-weight: 900;
+      letter-spacing: .02em; white-space: nowrap;
+      padding: 8px 9px; border-radius: 10px;
+      background: #002548; border: 1px solid rgba(0,229,255,.2);
+      font-variant-numeric: tabular-nums;
+    }
+    .utility-bar button { min-height: 42px; padding: 0 10px; border-radius: 12px; font-size: .76rem; white-space: nowrap; }
+    .utility-start { min-width: 0; }
+    .utility-stats { min-width: 0; }
+    main { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+    .app-header { background: rgba(0,25,48,.92); }
+    :root[data-theme="light"] { color-scheme: dark; --bg:#001930; --bg2:#002548; --surface:#002548; --surface-2:#002548; --surface-3:#002548; --card:#002548; --card-strong:#002548; --text:#eef7fb; --muted:#92acb9; --accent:#00e5ff; --accent-2:#00adb5; --accent-soft:rgba(0,229,255,.11); --danger:#ff7589; --danger-soft:rgba(255,117,137,.12); --field:rgba(4,17,24,.34); --ring:rgba(0,229,255,.30); }
+    @media (max-width: 380px) {
+      .utility-bar { grid-template-columns: auto 1fr; }
+      .utility-stats { grid-column: 1 / -1; min-height: 34px !important; }
+      .utility-timer { justify-self: start; }
+      .utility-start { justify-self: stretch; }
+      main { padding-bottom: calc(118px + env(safe-area-inset-bottom)); }
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(18px, env(safe-area-inset-bottom));
+      transform: translate(-50%, 18px);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 60;
+      max-width: calc(100% - 24px);
+      padding: 12px 15px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--surface-3);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      font-size: .85rem;
+      font-weight: 800;
+      text-align: center;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .stats-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      background: rgba(4, 13, 20, .76);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
     }
-    .header-inner, main { width: min(100% - 32px, 760px); margin-inline: auto; }
-    .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-    .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
-    .brand-mark {
-      width: 42px; height: 42px; flex: 0 0 42px;
-      display: grid; place-items: center;
+    .stats-modal.open { display: block; }
+
+    .stats-sheet {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, var(--bg), var(--bg2));
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stats-top {
+      padding: max(12px, env(safe-area-inset-top)) 0 12px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+    }
+
+    .stats-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stats-head h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: -.04em;
+    }
+
+    .close-btn {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line);
       border-radius: 14px;
-      color: #06202b;
-      background: linear-gradient(140deg, #73efff, var(--accent-strong));
-      box-shadow: 0 7px 22px rgba(19, 184, 213, .18);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
     }
-    .brand-mark svg { width: 23px; height: 23px; }
-    .brand-copy { min-width: 0; }
-    .brand-name { display: block; font-weight: 850; letter-spacing: -.045em; font-size: 1.12rem; line-height: 1.12; }
-    .brand-subtitle { display: block; margin-top: 3px; color: var(--muted); font-size: .73rem; }
-    .theme-toggle {
-      min-width: 44px; height: 44px; padding: 0 12px;
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      border: 1px solid var(--border); border-radius: 14px;
-      color: var(--text); background: var(--surface);
-      cursor: pointer; font-size: .82rem; font-weight: 750;
-      transition: transform .15s ease, background .2s ease;
-    }
-    .theme-toggle:active { transform: scale(.96); }
-    .theme-toggle svg { width: 18px; height: 18px; }
+    .close-btn svg { width: 18px; height: 18px; }
 
-    main { padding: 26px 0 calc(44px + env(safe-area-inset-bottom)); }
-    .eyebrow { margin: 0 0 8px; color: var(--accent); text-transform: uppercase; font-size: .72rem; letter-spacing: .15em; font-weight: 850; }
-    .intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 21px; }
-    h1 { margin: 0; font-size: clamp(1.75rem, 8vw, 2.45rem); letter-spacing: -.06em; line-height: 1.08; }
-    .intro-copy { max-width: 390px; margin: 9px 0 0; color: var(--muted); font-size: .93rem; }
-    .week-badge { flex: 0 0 auto; padding: 8px 11px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); background: var(--surface); font-size: .75rem; font-weight: 750; }
+    .stats-body {
+      flex: 1;
+      overflow: auto;
+      padding: 14px 0 calc(18px + env(safe-area-inset-bottom));
+    }
 
-    .summary-card {
-      position: relative; overflow: hidden;
-      display: flex; align-items: center; justify-content: space-between; gap: 14px;
-      padding: 17px 18px; margin-bottom: 23px;
-      background: linear-gradient(115deg, var(--surface-2), var(--surface));
-      border: 1px solid var(--border); border-radius: 21px; box-shadow: var(--shadow);
+    .stats-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 12px;
     }
-    .summary-card::after { content: ""; position: absolute; width: 130px; height: 130px; right: -45px; top: -65px; border-radius: 50%; background: var(--accent-soft); pointer-events: none; }
-    .summary-label { color: var(--muted); font-size: .8rem; font-weight: 650; }
-    .summary-number { margin-top: 3px; font-size: 1.45rem; letter-spacing: -.045em; font-weight: 850; }
-    .summary-number span { color: var(--muted); font-size: .86rem; font-weight: 650; letter-spacing: 0; }
-    .summary-icon { position: relative; z-index: 1; width: 46px; height: 46px; flex: 0 0 46px; display: grid; place-items: center; background: var(--accent-soft); border-radius: 15px; color: var(--accent); }
-    .summary-icon svg { width: 24px; height: 24px; }
 
-    .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 12px; }
-    .section-heading h2 { margin: 0; font-size: 1rem; letter-spacing: -.025em; }
-    .section-note { color: var(--muted); font-size: .76rem; }
-    .day-tabs {
-      display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px;
-      margin-bottom: 20px;
+    .stats-card label {
+      display: block;
+      margin: 0 0 7px 2px;
+      font-size: .7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      font-weight: 800;
     }
-    .day-tab {
-      min-width: 0; min-height: 64px; padding: 9px 3px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-      border: 1px solid var(--border); border-radius: 15px;
-      background: var(--surface); color: var(--muted); cursor: pointer;
-      transition: .16s ease;
+    .stats-card select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid rgba(145, 185, 200, .20);
+      border-radius: 14px;
+      background: var(--field);
+      color: var(--text);
+      padding: 10px 11px;
+      outline: none;
+      font-weight: 700;
     }
-    .day-tab .day-short { font-weight: 800; font-size: .78rem; }
-    .day-tab .day-count { font-size: .66rem; opacity: .85; }
-    .day-tab[aria-selected="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
-    .day-tab[aria-selected="true"] .day-short { color: var(--accent); }
 
-    .exercise-list { display: grid; gap: 12px; }
-    .exercise-card {
-      padding: 15px; border: 1px solid var(--border); border-radius: 20px;
-      background: var(--surface); box-shadow: 0 7px 22px rgba(0, 0, 0, .04);
-      animation: arrive .22s ease both;
+    .chart-wrap {
+      height: 320px;
+      position: relative;
     }
-    @keyframes arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    .exercise-top { display: flex; align-items: flex-start; gap: 11px; }
-    .exercise-symbol { display: grid; place-items: center; width: 43px; height: 43px; flex: 0 0 43px; border-radius: 14px; color: var(--accent); background: var(--accent-soft); }
-    .exercise-symbol svg { width: 22px; height: 22px; }
-    .exercise-main { min-width: 0; flex: 1; padding-top: 1px; }
-    .exercise-name {
-      width: 100%; min-width: 0; padding: 0; border: 0; border-radius: 5px;
-      background: transparent; color: var(--text); font-weight: 820; font-size: 1rem; letter-spacing: -.025em;
-    }
-    .exercise-name::placeholder { color: var(--muted); }
-    .exercise-help { margin-top: 4px; color: var(--muted); font-size: .75rem; }
-    .remove-button {
-      width: 39px; height: 39px; flex: 0 0 39px; display: grid; place-items: center;
-      margin: -3px -3px 0 0; border: 1px solid transparent; border-radius: 12px;
-      color: var(--muted); background: transparent; cursor: pointer;
-      transition: background .16s ease, color .16s ease;
-    }
-    .remove-button:hover, .remove-button:focus-visible { color: var(--danger); background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 25%, transparent); }
-    .remove-button svg { width: 18px; height: 18px; }
-    .exercise-fields { display: grid; grid-template-columns: .8fr .8fr 1.4fr; gap: 9px; margin-top: 16px; }
-    .field label { display: block; margin: 0 0 6px 2px; color: var(--muted); font-size: .7rem; font-weight: 750; }
-    .field input {
-      display: block; width: 100%; min-width: 0; min-height: 47px; padding: 10px 11px;
-      border: 1px solid var(--border); border-radius: 12px;
-      background: var(--input-bg); color: var(--text); font-size: .91rem; font-weight: 700;
-      outline: none; transition: border-color .15s ease, box-shadow .15s ease;
-    }
-    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
-    .weight-field input { border-color: color-mix(in srgb, var(--accent) 34%, var(--border)); }
-    .weight-field input::placeholder { color: var(--muted); font-weight: 500; }
 
-    .empty-state { padding: 30px 20px; text-align: center; border: 1px dashed var(--border); border-radius: 20px; background: var(--surface); }
-    .empty-icon { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 17px; background: var(--accent-soft); color: var(--accent); }
-    .empty-icon svg { width: 25px; height: 25px; }
-    .empty-state h3 { margin: 0; font-size: 1rem; }
-    .empty-state p { margin: 7px 0 0; color: var(--muted); font-size: .84rem; }
-
-    .add-panel { margin-top: 24px; padding: 18px; border: 1px solid var(--border); border-radius: 21px; background: var(--surface-2); }
-    .add-title-row { display: flex; align-items: center; gap: 11px; margin-bottom: 16px; }
-    .add-icon { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); }
-    .add-icon svg { width: 21px; height: 21px; }
-    .add-title-row h2 { margin: 0; font-size: 1rem; letter-spacing: -.02em; }
-    .add-title-row p { margin: 3px 0 0; color: var(--muted); font-size: .77rem; }
-    .add-form { display: grid; grid-template-columns: minmax(0, 1fr) 1fr 1fr; gap: 10px; }
-    .add-form .name-field { grid-column: 1 / -1; }
-    .add-form .field input { background: var(--surface); }
-    .primary-button {
-      width: 100%; min-height: 50px; margin-top: 13px; padding: 12px 16px;
-      display: inline-flex; justify-content: center; align-items: center; gap: 9px;
-      border: 0; border-radius: 14px; color: #04202a;
-      background: linear-gradient(115deg, #66eafa, var(--accent));
-      font-size: .92rem; font-weight: 850; cursor: pointer;
-      box-shadow: 0 8px 20px rgba(19, 184, 213, .16); transition: transform .15s ease, filter .15s ease;
+    .history-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
     }
-    .primary-button:hover { filter: brightness(1.04); }
-    .primary-button:active { transform: scale(.985); }
-    .primary-button svg { width: 19px; height: 19px; }
-    :root[data-theme="light"] .primary-button { color: #fff; background: linear-gradient(115deg, #0b93ae, #087b98); }
 
-    .storage-note { display: flex; align-items: flex-start; justify-content: center; gap: 8px; margin: 19px 0 0; color: var(--muted); font-size: .75rem; text-align: center; }
-    .storage-note svg { width: 15px; height: 15px; flex: 0 0 15px; margin-top: 1px; color: var(--accent); }
-    .toast {
-      position: fixed; z-index: 50; left: 50%; bottom: max(22px, env(safe-area-inset-bottom));
-      width: max-content; max-width: calc(100% - 32px); padding: 12px 16px;
-      transform: translate(-50%, 18px); opacity: 0; pointer-events: none;
-      border: 1px solid var(--border); border-radius: 14px; background: var(--surface-3); color: var(--text);
-      box-shadow: var(--shadow); font-size: .84rem; font-weight: 700; text-align: center;
-      transition: opacity .2s ease, transform .2s ease;
+    .history-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.03);
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
     }
-    .toast.visible { opacity: 1; transform: translate(-50%, 0); }
-    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .history-item strong {
+      display: block;
+      font-size: .9rem;
+    }
+    .history-item span {
+      display: block;
+      color: var(--muted);
+      font-size: .76rem;
+      margin-top: 3px;
+    }
+    .history-item em {
+      font-style: normal;
+      color: var(--accent);
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .history-delete {
+      flex: 0 0 auto;
+      border: 1px solid rgba(255, 100, 120, .35);
+      border-radius: 10px;
+      background: rgba(255, 80, 105, .10);
+      color: #ff8295;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: .75rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .history-delete:hover {
+      background: rgba(255, 80, 105, .20);
+      border-color: rgba(255, 100, 120, .6);
+    }
+    .history-delete:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
 
-    @media (min-width: 600px) {
-      .app-header { padding-inline: 24px; }
-      .header-inner, main { width: min(100% - 48px, 760px); }
-      main { padding-top: 36px; }
-      .intro { margin-bottom: 25px; }
-      .day-tabs { gap: 10px; }
-      .day-tab { min-height: 71px; }
-      .exercise-card { padding: 18px; }
-      .exercise-fields { margin-top: 18px; }
-      .add-panel { padding: 22px; }
-      .add-form { grid-template-columns: minmax(0, 2fr) minmax(82px, .7fr) minmax(82px, .7fr); }
-      .add-form .name-field { grid-column: auto; }
-      .primary-button { width: auto; min-width: 190px; margin-left: auto; }
-      .add-panel form { display: flex; flex-wrap: wrap; align-items: end; }
-      .add-panel .add-form { flex: 1 1 100%; }
-      .add-panel .primary-button { flex: 0 0 auto; }
+    body.rest-flash::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      pointer-events: none;
+      background: rgba(69, 219, 246, .15);
+      animation: pulseFlash .16s linear infinite alternate;
     }
+
+    @keyframes pulseFlash {
+      from { opacity: .18; }
+      to { opacity: .65; }
+    }
+
+    @media (min-width: 720px) {
+      .add-form .row {
+        grid-template-columns: 2fr .8fr .8fr .9fr;
+      }
+      .add-form .row-2 {
+        grid-template-columns: 1fr auto;
+        align-items: end;
+      }
+      .bottom-actions {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+      .stats-body .shell { width: min(100% - 36px, 760px); }
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .chart-wrap { height: 360px; }
+    }
+
     @media (max-width: 360px) {
-      .header-inner, main { width: calc(100% - 24px); }
-      .app-header { padding-inline: 12px; }
-      .brand-subtitle { font-size: .68rem; }
-      .day-tabs { gap: 4px; }
-      .day-tab { border-radius: 12px; }
-      .exercise-card { padding: 12px; }
+      .shell { width: calc(100% - 18px); }
+      .day-card { width: 68px; min-height: 68px; border-radius: 20px; }
+      .exercise-card { border-radius: 22px; padding: 12px; }
       .exercise-fields { gap: 6px; }
-      .field input { padding-inline: 8px; font-size: .85rem; }
-      .field label { font-size: .66rem; }
-      .add-panel { padding: 14px; }
+      .mini-field input { min-height: 40px; padding-inline: 9px; }
+      .timer-bar { grid-template-columns: 1fr; }
+      .timer-actions { justify-content: stretch; }
+      .timer-actions button { flex: 1 1 auto; }
+      .bottom-actions { grid-template-columns: 1fr; }
     }
+
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
     }
   </style>
 </head>
 <body>
   <header class="app-header">
-    <div class="header-inner">
-      <div class="brand" aria-label="Meu Treino">
-        <div class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8v8M3.5 10v4M10 6v12M14 6v12M18 8v8M20.5 10v4M10 12h4"/></svg>
+    <div class="shell">
+      <div class="header-row">
+        <div class="title-wrap">
+          <h1>MeuTreino</h1>
         </div>
-        <div class="brand-copy"><span class="brand-name">Meu Treino</span><span class="brand-subtitle">Seu progresso, no seu ritmo</span></div>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar tema" aria-pressed="false">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>
+          </svg>
+        </button>
       </div>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar tema claro e escuro" aria-pressed="false">
-        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
-        <span id="themeLabel">Tema claro</span>
-      </button>
     </div>
   </header>
 
   <main>
-    <section class="intro" aria-labelledby="pageTitle">
-      <div>
-        <p class="eyebrow">Constância gera resultado</p>
-        <h1 id="pageTitle">Sua semana de treino<span style="color:var(--accent)">.</span></h1>
-        <p class="intro-copy">Organize os exercícios, acompanhe as cargas e mantenha seu foco em cada série.</p>
-      </div>
-      <span class="week-badge">SEG — SÁB</span>
-    </section>
-
-    <section class="summary-card" aria-live="polite" aria-atomic="true">
-      <div>
-        <div class="summary-label" id="summaryDay">Treino de segunda-feira</div>
-        <div class="summary-number"><span id="exerciseCount">4</span> <span id="exerciseWord">exercícios planejados</span></div>
-      </div>
-      <div class="summary-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12a2 2 0 0 1 2 2v16H4V5a2 2 0 0 1 2-2Z"/><path d="M8 8h8M8 12h2m3 0h3M8 16h2m3 0h3"/></svg>
-      </div>
-    </section>
-
-    <section aria-labelledby="daysHeading">
-      <div class="section-heading"><h2 id="daysHeading">Dias da semana</h2><span class="section-note">Toque para alternar</span></div>
-      <div class="day-tabs" id="dayTabs" role="tablist" aria-label="Dias de treino"></div>
-    </section>
-
-    <section aria-labelledby="exerciseHeading">
-      <div class="section-heading"><h2 id="exerciseHeading">Exercícios</h2><span class="section-note">Edite os campos diretamente</span></div>
-      <div class="exercise-list" id="exerciseList" aria-live="polite"></div>
-    </section>
-
-    <section class="add-panel" aria-labelledby="addHeading">
-      <div class="add-title-row">
-        <div class="add-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
-        <div><h2 id="addHeading">Adicionar exercício</h2><p id="addDescription">O novo exercício será incluído na segunda-feira.</p></div>
-      </div>
-      <form id="addForm">
-        <div class="add-form">
-          <div class="field name-field"><label for="newExerciseName">Nome do exercício</label><input id="newExerciseName" name="name" type="text" maxlength="80" placeholder="Ex.: Supino inclinado" required autocomplete="off"></div>
-          <div class="field"><label for="newExerciseSets">Séries</label><input id="newExerciseSets" name="sets" type="number" min="1" max="99" step="1" value="3" required inputmode="numeric"></div>
-          <div class="field"><label for="newExerciseReps">Repetições</label><input id="newExerciseReps" name="reps" type="text" maxlength="20" value="10–12" placeholder="Ex.: 10–12" required></div>
+    <div class="shell">
+      <section aria-label="Dias da semana">
+        <div class="section-title">
+          <h2>Dias da semana</h2>
+          <span></span>
         </div>
-        <button class="primary-button" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Adicionar ao treino</button>
-      </form>
-    </section>
+        <div class="day-strip" id="dayStrip"></div>
+      </section>
 
-    <p class="storage-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3"/></svg>Seus dados ficam salvos neste navegador, sem precisar de conta ou servidor.</p>
+      <section aria-label="Progresso do treino" class="progress-block">
+        <div class="progress-row">
+          <strong>Progresso do treino</strong>
+          <span class="meta" id="progressLabel">0% concluído</span>
+        </div>
+        <div class="bar" aria-hidden="true"><span id="progressBar"></span></div>
+      </section>
+
+      <section aria-label="Exercícios">
+        <div class="section-title">
+          <h2>Exercícios</h2>
+          <span id="dayMeta">—</span>
+        </div>
+        <div class="exercise-list" id="exerciseList"></div>
+      </section>
+
+      <section class="bottom-panel" aria-label="Controles do app">
+        <div class="panel-card">
+          <div class="footer-title">Adicionar exercício</div>
+          <form id="addForm" class="add-form" autocomplete="off">
+            <div class="row-2">
+              <div>
+                <label for="newName">Nome do exercício</label>
+                <input id="newName" type="text" maxlength="80" placeholder="Ex.: Supino reto" required>
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="newSets">Séries</label>
+                <input id="newSets" type="number" min="1" max="99" step="1" value="3" inputmode="numeric" required>
+              </div>
+              <div>
+                <label for="newReps">Repetições</label>
+                <input id="newReps" type="text" maxlength="24" placeholder="Ex.: 8–10" value="8–10" required>
+              </div>
+              <div>
+                <label for="newWeight">Peso atual</label>
+                <input id="newWeight" type="text" maxlength="24" placeholder="Ex.: 25 kg">
+              </div>
+              <div>
+                <label style="visibility:hidden">Adicionar</label>
+                <button class="primary-btn" type="submit" style="width:100%">Adicionar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <p class="note">Seus dados ficam salvos neste navegador via localStorage.</p>
+      </section>
+    </div>
   </main>
 
+  <nav class="utility-bar" aria-label="Controles do treino">
+    <div class="utility-timer" id="timerDisplay">00:00:00</div>
+    <button class="primary-btn utility-start" id="workoutToggleBtn" type="button">Começar Treino</button>
+    <button class="ghost-btn utility-stats" id="openStatsBtn" type="button">Ver Estatísticas</button>
+  </nav>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <section class="stats-modal" id="statsModal" aria-hidden="true" aria-label="Estatísticas de carga">
+    <div class="stats-sheet">
+      <div class="stats-top">
+        <div class="shell">
+          <div class="stats-head">
+            <h2>Estatísticas</h2>
+            <button class="close-btn" id="closeStatsBtn" type="button" aria-label="Fechar estatísticas">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="stats-body">
+        <div class="shell">
+          <div class="stats-card">
+            <label for="exerciseSelect">Escolha um exercício</label>
+            <select id="exerciseSelect"></select>
+          </div>
+          <div class="stats-card">
+            <div class="chart-wrap"><canvas id="progressChart"></canvas></div>
+          </div>
+          <div class="stats-card">
+            <div class="footer-title" style="margin-bottom:8px">Histórico recente</div>
+            <div class="history-list" id="historyList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <script>
     (() => {
       'use strict';
 
-      const DATA_KEY = 'meuTreino.data.v1';
+      const STORAGE_KEY = 'meuTreino.state.v3';
+      const OLD_KEY = 'meuTreino.data.v1';
       const THEME_KEY = 'meuTreino.theme.v1';
       const DAYS = [
-        { id: 'segunda', label: 'Segunda-feira', short: 'SEG' },
-        { id: 'terca', label: 'Terça-feira', short: 'TER' },
-        { id: 'quarta', label: 'Quarta-feira', short: 'QUA' },
-        { id: 'quinta', label: 'Quinta-feira', short: 'QUI' },
-        { id: 'sexta', label: 'Sexta-feira', short: 'SEX' },
-        { id: 'sabado', label: 'Sábado', short: 'SÁB' }
+        { id: 'segunda', short: 'SEG', label: 'Segunda-feira' },
+        { id: 'terca', short: 'TER', label: 'Terça-feira' },
+        { id: 'quarta', short: 'QUA', label: 'Quarta-feira' },
+        { id: 'quinta', short: 'QUI', label: 'Quinta-feira' },
+        { id: 'sexta', short: 'SEX', label: 'Sexta-feira' },
+        { id: 'sabado', short: 'SÁB', label: 'Sábado' }
       ];
 
-      const makeId = () => {
-        if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
-        return 'ex-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
-      };
+      const $ = (id) => document.getElementById(id);
+      const shell = document.querySelector('.shell');
+      const dayStrip = $('dayStrip');
+      const exerciseList = $('exerciseList');
+      const progressLabel = $('progressLabel');
+      const progressBar = $('progressBar');
+      const dayMeta = $('dayMeta');
+      const timerDisplay = $('timerDisplay');
+      const workoutToggleBtn = $('workoutToggleBtn');
+      const openStatsBtn = $('openStatsBtn');
+      const addForm = $('addForm');
+      const newName = $('newName');
+      const newSets = $('newSets');
+      const newReps = $('newReps');
+      const newWeight = $('newWeight');
+      const themeToggle = $('themeToggle');
+      const themeIcon = $('themeIcon');
+      const toast = $('toast');
+      const statsModal = $('statsModal');
+      const closeStatsBtn = $('closeStatsBtn');
+      const exerciseSelect = $('exerciseSelect');
+      const historyList = $('historyList');
+      const progressCanvas = $('progressChart');
 
-      function createDefaultData() {
+      let state = loadState();
+      let activeDay = state.activeDay || 'segunda';
+      let workoutRunning = false;
+      let workoutStart = 0;
+      let workoutTick = null;
+      let toastTimer = null;
+      let chart = null;
+      const restTimers = new Map();
+
+
+      function uid() {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') return crypto.randomUUID();
+        return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+      }
+
+      function blankDay() {
+        return [];
+      }
+
+      function sampleState() {
+        const make = (name, sets, reps, weight) => ({ id: uid(), name, sets: String(sets), reps, weight, done: false });
         return {
-          segunda: [
-            { id: makeId(), name: 'Supino reto', sets: '4', reps: '8–10', weight: '25 kg' },
-            { id: makeId(), name: 'Supino inclinado com halteres', sets: '3', reps: '10–12', weight: '16 kg' },
-            { id: makeId(), name: 'Crucifixo na máquina', sets: '3', reps: '12', weight: '30 kg' },
-            { id: makeId(), name: 'Tríceps na polia', sets: '3', reps: '12', weight: '20 kg' }
-          ],
-          terca: [
-            { id: makeId(), name: 'Puxada frontal', sets: '4', reps: '8–12', weight: '35 kg' },
-            { id: makeId(), name: 'Remada baixa', sets: '3', reps: '10–12', weight: '30 kg' },
-            { id: makeId(), name: 'Remada unilateral com halter', sets: '3', reps: '10 cada lado', weight: '14 kg' },
-            { id: makeId(), name: 'Rosca direta', sets: '3', reps: '12', weight: '12 kg' }
-          ],
-          quarta: [
-            { id: makeId(), name: 'Agachamento livre', sets: '4', reps: '8–10', weight: '40 kg' },
-            { id: makeId(), name: 'Leg press', sets: '3', reps: '10–12', weight: '100 kg' },
-            { id: makeId(), name: 'Cadeira extensora', sets: '3', reps: '12', weight: '30 kg' },
-            { id: makeId(), name: 'Mesa flexora', sets: '3', reps: '12', weight: '25 kg' }
-          ],
-          quinta: [
-            { id: makeId(), name: 'Desenvolvimento com halteres', sets: '3', reps: '10', weight: '12 kg' },
-            { id: makeId(), name: 'Elevação lateral', sets: '3', reps: '12–15', weight: '6 kg' },
-            { id: makeId(), name: 'Face pull', sets: '3', reps: '12–15', weight: '15 kg' }
-          ],
-          sexta: [
-            { id: makeId(), name: 'Levantamento terra romeno', sets: '3', reps: '8–10', weight: '35 kg' },
-            { id: makeId(), name: 'Afundo com halteres', sets: '3', reps: '10 cada lado', weight: '10 kg' },
-            { id: makeId(), name: 'Panturrilha em pé', sets: '4', reps: '15', weight: '20 kg' }
-          ],
-          sabado: [
-            { id: makeId(), name: 'Prancha abdominal', sets: '3', reps: '30–45 s', weight: 'Corpo livre' },
-            { id: makeId(), name: 'Abdominal na polia', sets: '3', reps: '12–15', weight: '15 kg' },
-            { id: makeId(), name: 'Caminhada inclinada', sets: '1', reps: '15–20 min', weight: 'Sem carga' }
-          ]
+          version: 3,
+          activeDay: 'segunda',
+          theme: 'dark',
+          workouts: {
+            segunda: [
+              make('Supino reto', 4, '8–10', '25 kg'),
+              make('Supino inclinado', 3, '10–12', '18 kg'),
+              make('Crucifixo na máquina', 3, '12', '30 kg')
+            ],
+            terca: [
+              make('Puxada frontal', 4, '8–12', '35 kg'),
+              make('Remada baixa', 3, '10–12', '30 kg'),
+              make('Rosca direta', 3, '12', '12 kg')
+            ],
+            quarta: [
+              make('Agachamento', 4, '8–10', '40 kg'),
+              make('Leg press', 3, '10–12', '100 kg'),
+              make('Cadeira extensora', 3, '12', '30 kg')
+            ],
+            quinta: [
+              make('Desenvolvimento', 3, '10', '12 kg'),
+              make('Elevação lateral', 3, '12–15', '6 kg'),
+              make('Face pull', 3, '12–15', '15 kg')
+            ],
+            sexta: [
+              make('Terra romeno', 3, '8–10', '35 kg'),
+              make('Afundo', 3, '10 cada lado', '10 kg'),
+              make('Panturrilha', 4, '15', '20 kg')
+            ],
+            sabado: [
+              make('Prancha', 3, '30–45 s', 'Corpo livre'),
+              make('Abdominal na polia', 3, '12–15', '15 kg'),
+              make('Caminhada inclinada', 1, '15–20 min', 'Sem carga')
+            ]
+          },
+          history: []
         };
       }
 
-      function isValidData(value) {
-        if (!value || typeof value !== 'object') return false;
-        return DAYS.every(day => Array.isArray(value[day.id]) && value[day.id].every(ex =>
-          ex && typeof ex === 'object' && typeof ex.id === 'string' &&
-          typeof ex.name === 'string' && typeof ex.sets === 'string' &&
-          typeof ex.reps === 'string' && typeof ex.weight === 'string'
-        ));
-      }
+      function ensureShape(raw) {
+        if (!raw || typeof raw !== 'object') return sampleState();
+        const base = sampleState();
+        const workoutsSource = raw.workouts && typeof raw.workouts === 'object' ? raw.workouts : raw;
+        const output = {
+          version: 3,
+          activeDay: DAYS.some(d => d.id === raw.activeDay) ? raw.activeDay : 'segunda',
+          theme: raw.theme === 'light' ? 'light' : 'dark',
+          workouts: {},
+          history: Array.isArray(raw.history) ? raw.history : []
+        };
 
-      function loadData() {
-        try {
-          const raw = localStorage.getItem(DATA_KEY);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (isValidData(parsed)) return parsed;
-          }
-        } catch (error) {
-          console.warn('Não foi possível ler os treinos salvos:', error);
+        for (const day of DAYS) {
+          const list = Array.isArray(workoutsSource[day.id]) ? workoutsSource[day.id] : base.workouts[day.id];
+          output.workouts[day.id] = list.map(item => ({
+            id: typeof item.id === 'string' ? item.id : uid(),
+            name: String(item.name ?? 'Exercício'),
+            sets: String(item.sets ?? '3'),
+            reps: String(item.reps ?? '10–12'),
+            weight: String(item.weight ?? ''),
+            done: Boolean(item.done)
+          }));
         }
-        const defaults = createDefaultData();
-        try { localStorage.setItem(DATA_KEY, JSON.stringify(defaults)); }
-        catch (error) { console.warn('Não foi possível salvar os treinos iniciais:', error); }
-        return defaults;
+
+        output.history = output.history
+          .filter(entry => entry && typeof entry === 'object')
+          .map(entry => ({
+            id: typeof entry.id === 'string' ? entry.id : uid(),
+            date: typeof entry.date === 'string' ? entry.date : new Date().toISOString(),
+            dayId: DAYS.some(d => d.id === entry.dayId) ? entry.dayId : 'segunda',
+            dayLabel: typeof entry.dayLabel === 'string' ? entry.dayLabel : 'Treino',
+            exercises: Array.isArray(entry.exercises) ? entry.exercises.map(ex => ({
+              name: String(ex?.name ?? 'Exercício'),
+              sets: String(ex?.sets ?? ''),
+              reps: String(ex?.reps ?? ''),
+              weight: String(ex?.weight ?? '')
+            })) : []
+          }));
+
+        return output;
       }
 
-      let workouts = loadData();
-      let activeDay = 'segunda';
-      let toastTimeout;
+      function loadState() {
+        const saved = readJSON(STORAGE_KEY) || readJSON(OLD_KEY);
+        const loaded = ensureShape(saved);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(loaded)); } catch (error) { console.warn(error); }
+        return loaded;
+      }
 
-      const root = document.documentElement;
-      const dayTabs = document.getElementById('dayTabs');
-      const exerciseList = document.getElementById('exerciseList');
-      const summaryDay = document.getElementById('summaryDay');
-      const exerciseCount = document.getElementById('exerciseCount');
-      const exerciseWord = document.getElementById('exerciseWord');
-      const addDescription = document.getElementById('addDescription');
-      const addForm = document.getElementById('addForm');
-      const newExerciseName = document.getElementById('newExerciseName');
-      const newExerciseSets = document.getElementById('newExerciseSets');
-      const newExerciseReps = document.getElementById('newExerciseReps');
-      const themeToggle = document.getElementById('themeToggle');
-      const themeLabel = document.getElementById('themeLabel');
-      const themeIcon = document.getElementById('themeIcon');
-      const toast = document.getElementById('toast');
+      function readJSON(key) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : null;
+        } catch (_) {
+          return null;
+        }
+      }
 
-      const icons = {
-        exercise: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8v8M3.5 10v4M10 6v12M14 6v12M18 8v8M20.5 10v4M10 12h4"/></svg>',
-        trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6"/></svg>',
-        empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'
-      };
+      function saveState(target = state) {
+        target.activeDay = activeDay;
+        target.theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(target)); }
+        catch (error) { console.warn(error); }
+      }
 
-      function escapeHTML(value) {
-        return String(value).replace(/[&<>"']/g, character => ({
+      function currentDay() {
+        return DAYS.find(day => day.id === activeDay) || DAYS[0];
+      }
+
+      function esc(value) {
+        return String(value).replace(/[&<>"]|'/g, (m) => ({
           '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-        })[character]);
-      }
-
-      function saveData() {
-        try {
-          localStorage.setItem(DATA_KEY, JSON.stringify(workouts));
-          return true;
-        } catch (error) {
-          console.error('Não foi possível salvar os treinos:', error);
-          showToast('Não foi possível salvar. Verifique o espaço do navegador.');
-          return false;
-        }
+        }[m]));
       }
 
       function showToast(message) {
-        window.clearTimeout(toastTimeout);
+        clearTimeout(toastTimer);
         toast.textContent = message;
-        toast.classList.add('visible');
-        toastTimeout = window.setTimeout(() => toast.classList.remove('visible'), 2300);
+        toast.classList.add('show');
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
       }
 
-      function getDay(dayId = activeDay) {
-        return DAYS.find(day => day.id === dayId) || DAYS[0];
+      function applyTheme(theme, persist = true) {
+        const isLight = theme === 'light';
+        document.documentElement.dataset.theme = isLight ? 'light' : 'dark';
+        themeToggle.setAttribute('aria-pressed', String(isLight));
+        themeToggle.title = isLight ? 'Tema claro ativo' : 'Tema escuro ativo';
+        document.querySelector('meta[name=\"theme-color\"]')?.setAttribute('content', isLight ? '#eef4f8' : '#071923');
+        themeIcon.innerHTML = isLight
+          ? '<path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.7 8.7 0 1 0 10.7 10.7Z"></path>'
+          : '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>';
+        if (persist) saveState();
       }
 
-      function renderTabs() {
-        dayTabs.replaceChildren();
-        DAYS.forEach(day => {
-          const tab = document.createElement('button');
-          tab.type = 'button';
-          tab.className = 'day-tab';
-          tab.setAttribute('role', 'tab');
-          tab.setAttribute('aria-selected', String(day.id === activeDay));
-          tab.setAttribute('aria-controls', 'exerciseList');
-          tab.id = 'tab-' + day.id;
-          tab.innerHTML = '<span class="day-short">' + day.short + '</span><span class="day-count">' + workouts[day.id].length + (workouts[day.id].length === 1 ? ' treino' : ' treinos') + '</span>';
-          tab.addEventListener('click', () => {
-            activeDay = day.id;
-            renderAll();
-          });
-          dayTabs.appendChild(tab);
-        });
-      }
-
-      function createField(labelText, fieldName, value, exerciseId, placeholder = '') {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'field' + (fieldName === 'weight' ? ' weight-field' : '');
-        const label = document.createElement('label');
-        const input = document.createElement('input');
-        const inputId = 'field-' + exerciseId + '-' + fieldName;
-        label.htmlFor = inputId;
-        label.textContent = labelText;
-        input.id = inputId;
-        input.name = fieldName;
-        input.value = value;
-        input.dataset.exerciseId = exerciseId;
-        input.dataset.field = fieldName;
-        input.autocomplete = 'off';
-        if (fieldName === 'sets') {
-          input.type = 'number'; input.min = '1'; input.max = '99'; input.step = '1'; input.inputMode = 'numeric';
-          input.setAttribute('aria-label', labelText);
-        } else {
-          input.type = 'text'; input.maxLength = fieldName === 'reps' ? 20 : 40;
-          if (fieldName === 'weight') input.inputMode = 'decimal';
-          if (placeholder) input.placeholder = placeholder;
+      function saveAndRender() {
+        saveState();
+        renderDays();
+        renderExercises();
+        updateProgress();
+        if (statsModal.classList.contains('open')) {
+          refreshStats();
         }
-        wrapper.append(label, input);
-        return wrapper;
+      }
+
+      function renderDays() {
+        dayStrip.innerHTML = '';
+        for (const day of DAYS) {
+          const count = state.workouts[day.id].length;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'day-card';
+          btn.setAttribute('role', 'tab');
+          btn.setAttribute('aria-selected', String(day.id === activeDay));
+          btn.innerHTML = `<span><span class="short">${day.short}</span><span class="count">${count} ${count === 1 ? 'treino' : 'treinos'}</span></span>`;
+          btn.addEventListener('click', () => {
+            activeDay = day.id;
+            renderDays();
+            renderExercises();
+            updateProgress();
+            saveState();
+          });
+          dayStrip.appendChild(btn);
+        }
+      }
+
+      function updateProgress() {
+        const list = state.workouts[activeDay];
+        const total = list.length;
+        const done = list.filter(item => item.done).length;
+        const percent = total ? Math.round((done / total) * 100) : 0;
+        progressBar.style.width = percent + '%';
+        progressLabel.textContent = percent + '% concluído';
+        dayMeta.textContent = currentDay().label + ' · ' + total + ' exercício' + (total === 1 ? '' : 's');
       }
 
       function renderExercises() {
-        const day = getDay();
-        const exercises = workouts[activeDay];
-        exerciseList.replaceChildren();
-        summaryDay.textContent = 'Treino de ' + day.label.toLocaleLowerCase('pt-BR');
-        exerciseCount.textContent = String(exercises.length);
-        exerciseWord.textContent = exercises.length === 1 ? 'exercício planejado' : 'exercícios planejados';
-        addDescription.textContent = 'O novo exercício será incluído em ' + day.label.toLocaleLowerCase('pt-BR') + '.';
+        exerciseList.innerHTML = '';
+        const list = state.workouts[activeDay];
 
-        if (exercises.length === 0) {
-          const empty = document.createElement('div');
-          empty.className = 'empty-state';
-          empty.innerHTML = '<div class="empty-icon">' + icons.empty + '</div><h3>Nenhum exercício por aqui</h3><p>Use o formulário abaixo para montar o treino deste dia.</p>';
-          exerciseList.appendChild(empty);
+        if (!list.length) {
+          exerciseList.innerHTML = '<div class="empty-card"><strong>Sem exercícios neste dia</strong>Adicione um exercício no formulário de baixo.</div>';
           return;
         }
 
-        exercises.forEach((exercise, index) => {
+        list.forEach((exercise) => {
           const card = document.createElement('article');
           card.className = 'exercise-card';
-          card.dataset.cardId = exercise.id;
+          card.dataset.id = exercise.id;
 
-          const top = document.createElement('div');
-          top.className = 'exercise-top';
-          const symbol = document.createElement('div');
-          symbol.className = 'exercise-symbol';
-          symbol.innerHTML = icons.exercise;
+          const head = document.createElement('div');
+          head.className = 'exercise-head';
 
-          const main = document.createElement('div');
-          main.className = 'exercise-main';
+          const check = document.createElement('label');
+          check.className = 'done-wrap';
+          check.innerHTML = `<input type="checkbox" ${exercise.done ? 'checked' : ''} aria-label="Marcar exercício concluído"><span></span>`;
+          const checkbox = check.querySelector('input');
+          checkbox.addEventListener('change', () => {
+            exercise.done = checkbox.checked;
+            saveState();
+            updateProgress();
+          });
+
           const name = document.createElement('input');
-          name.type = 'text'; name.maxLength = 80; name.required = true;
-          name.className = 'exercise-name'; name.value = exercise.name;
-          name.dataset.exerciseId = exercise.id; name.dataset.field = 'name';
-          name.setAttribute('aria-label', 'Nome do exercício ' + (index + 1));
-          const help = document.createElement('div');
-          help.className = 'exercise-help';
-          help.textContent = 'Exercício ' + String(index + 1).padStart(2, '0') + ' · As alterações são salvas automaticamente';
-          main.append(name, help);
+          name.className = 'exercise-name';
+          name.type = 'text';
+          name.value = exercise.name;
+          name.maxLength = 80;
+          name.placeholder = 'Nome do exercício';
+          name.dataset.field = 'name';
+          name.addEventListener('input', () => {
+            exercise.name = name.value;
+            saveState();
+            if (statsModal.classList.contains('open')) refreshStats();
+          });
 
           const remove = document.createElement('button');
-          remove.type = 'button'; remove.className = 'remove-button';
-          remove.innerHTML = icons.trash;
-          remove.setAttribute('aria-label', 'Remover ' + exercise.name);
+          remove.type = 'button';
+          remove.className = 'icon-btn';
           remove.title = 'Remover exercício';
-          remove.addEventListener('click', () => removeExercise(exercise.id));
-          top.append(symbol, main, remove);
+          remove.setAttribute('aria-label', 'Remover exercício');
+          remove.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m2 0-1 14H7L6 6m4 4v6m4-6v6"/></svg>';
+          remove.addEventListener('click', () => {
+            const idx = state.workouts[activeDay].findIndex(item => item.id === exercise.id);
+            if (idx >= 0) state.workouts[activeDay].splice(idx, 1);
+            clearRestTimer(exercise.id);
+            saveAndRender();
+            showToast('Exercício removido.');
+          });
+
+          head.append(check, name, remove);
 
           const fields = document.createElement('div');
           fields.className = 'exercise-fields';
           fields.append(
-            createField('Séries', 'sets', exercise.sets, exercise.id),
-            createField('Repetições', 'reps', exercise.reps, exercise.id),
-            createField('Peso atual', 'weight', exercise.weight, exercise.id, 'Ex.: 25 kg')
+            field('Séries', exercise.sets, 'text', 'sets', exercise),
+            field('Repetições', exercise.reps, 'text', 'reps', exercise),
+            field('Peso atual', exercise.weight, 'text', 'weight', exercise, 'Ex.: 25 kg')
           );
-          card.append(top, fields);
+
+          const restRow = document.createElement('div');
+          restRow.className = 'rest-row';
+          const restBtn = document.createElement('button');
+          restBtn.type = 'button';
+          restBtn.className = 'rest-btn';
+          restBtn.textContent = 'Descansar (60s)';
+          const skipBtn = document.createElement('button');
+          skipBtn.type = 'button';
+          skipBtn.className = 'skip-btn';
+          skipBtn.textContent = 'Pular';
+          skipBtn.hidden = true;
+          restBtn.addEventListener('click', () => startRestTimer(exercise.id, restBtn, skipBtn));
+          skipBtn.addEventListener('click', () => clearRestTimer(exercise.id, true));
+          restRow.append(restBtn, skipBtn);
+
+          card.append(head, fields, restRow);
           exerciseList.appendChild(card);
+
+          syncRestButton(exercise.id);
         });
       }
 
-      function renderAll() {
-        renderTabs();
-        renderExercises();
-        const currentTab = document.getElementById('tab-' + activeDay);
-        if (currentTab) currentTab.setAttribute('tabindex', '0');
+      function field(labelText, value, type, fieldName, exercise, placeholder = '') {
+        const wrap = document.createElement('div');
+        wrap.className = 'mini-field';
+        const label = document.createElement('label');
+        label.textContent = labelText;
+        const input = document.createElement('input');
+        input.type = type;
+        input.value = value;
+        if (placeholder) input.placeholder = placeholder;
+        input.dataset.id = exercise.id;
+        input.dataset.field = fieldName;
+        if (fieldName === 'sets') {
+          input.min = '1';
+          input.max = '99';
+          input.inputMode = 'numeric';
+        }
+        input.addEventListener('input', () => {
+          exercise[fieldName] = input.value;
+          saveState();
+          if (statsModal.classList.contains('open')) refreshStats();
+        });
+        wrap.append(label, input);
+        return wrap;
       }
 
-      function removeExercise(exerciseId) {
-        const exercises = workouts[activeDay];
-        const index = exercises.findIndex(exercise => exercise.id === exerciseId);
-        if (index < 0) return;
-        const name = exercises[index].name || 'Exercício';
-        exercises.splice(index, 1);
-        saveData();
-        renderAll();
-        showToast('“' + name + '” foi removido do treino.');
-      }
-
-      addForm.addEventListener('submit', event => {
-        event.preventDefault();
-        const name = newExerciseName.value.trim();
-        const sets = newExerciseSets.value.trim();
-        const reps = newExerciseReps.value.trim();
-        if (!name) {
-          newExerciseName.focus();
-          return;
-        }
-        if (!sets || Number(sets) < 1 || Number(sets) > 99) {
-          newExerciseSets.setCustomValidity('Informe de 1 a 99 séries.');
-          newExerciseSets.reportValidity();
-          newExerciseSets.setCustomValidity('');
-          return;
-        }
-        if (!reps) {
-          newExerciseReps.focus();
-          return;
-        }
-        workouts[activeDay].push({ id: makeId(), name, sets: String(Number(sets)), reps, weight: '' });
-        saveData();
-        renderAll();
-        addForm.reset();
-        newExerciseSets.value = '3';
-        newExerciseReps.value = '10–12';
-        newExerciseName.focus();
-        showToast('Exercício adicionado a ' + getDay().label.toLocaleLowerCase('pt-BR') + '.');
-      });
-
-      exerciseList.addEventListener('input', event => {
-        const input = event.target;
-        if (!(input instanceof HTMLInputElement)) return;
-        const exerciseId = input.dataset.exerciseId;
-        const field = input.dataset.field;
-        if (!exerciseId || !['name', 'sets', 'reps', 'weight'].includes(field)) return;
-        const exercise = workouts[activeDay].find(item => item.id === exerciseId);
-        if (!exercise) return;
-        if (field === 'sets') {
-          if (input.value !== '' && Number(input.value) < 1) return;
-          if (input.value !== '' && Number(input.value) > 99) return;
-          exercise[field] = input.value;
+      function syncRestButton(id) {
+        const timer = restTimers.get(id);
+        const card = exerciseList.querySelector(`.exercise-card[data-id="${id}"]`);
+        if (!card) return;
+        const btn = card.querySelector('.rest-btn');
+        const skip = card.querySelector('.skip-btn');
+        if (!btn || !skip) return;
+        if (timer && timer.running) {
+          btn.classList.add('is-running');
+          btn.textContent = `Descanso: ${timer.remaining}s`;
+          skip.hidden = false;
         } else {
-          exercise[field] = input.value;
+          btn.classList.remove('is-running');
+          btn.textContent = 'Descansar (60s)';
+          skip.hidden = true;
         }
-        saveData();
-        if (field === 'name') {
-          const remove = input.closest('.exercise-card')?.querySelector('.remove-button');
-          if (remove) {
-            const cleanName = input.value.trim();
-            remove.setAttribute('aria-label', 'Remover ' + (cleanName || 'exercício'));
+      }
+
+      function startRestTimer(id, btn, skipBtn) {
+        const existing = restTimers.get(id);
+        if (existing?.running) return;
+        clearRestTimer(id, false);
+        const timer = {
+          running: true,
+          remaining: 60,
+          interval: null,
+          btn,
+          skipBtn
+        };
+        restTimers.set(id, timer);
+        syncRestButton(id);
+        timer.interval = setInterval(() => {
+          timer.remaining -= 1;
+          syncRestButton(id);
+          if (timer.remaining <= 0) {
+            clearRestTimer(id, false);
+            flashAndBeep();
+            showToast('O descanso terminou.');
+          }
+        }, 1000);
+      }
+
+      function clearRestTimer(id, silent) {
+        const timer = restTimers.get(id);
+        if (!timer) return;
+        if (timer.interval) clearInterval(timer.interval);
+        restTimers.delete(id);
+        syncRestButton(id);
+        if (!silent) return;
+      }
+
+      function flashAndBeep() {
+        document.body.classList.add('rest-flash');
+        setTimeout(() => document.body.classList.remove('rest-flash'), 1500);
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const audio = new AudioCtx();
+          const osc = audio.createOscillator();
+          const gain = audio.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = 880;
+          gain.gain.value = 0.0001;
+          osc.connect(gain);
+          gain.connect(audio.destination);
+          osc.start();
+          gain.gain.exponentialRampToValueAtTime(0.12, audio.currentTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.18);
+          osc.stop(audio.currentTime + 0.2);
+          osc.onended = () => audio.close?.();
+        } catch (error) {
+          console.warn(error);
+        }
+        if (navigator.vibrate) navigator.vibrate([120, 80, 120]);
+      }
+
+      function startWorkoutTimer() {
+        if (workoutRunning) return;
+        workoutRunning = true;
+        workoutStart = Date.now();
+        workoutToggleBtn.textContent = 'Finalizar Treino';
+        showToast('Treino iniciado.');
+        workoutTick = setInterval(() => {
+          timerDisplay.textContent = formatDuration(Date.now() - workoutStart);
+        }, 1000);
+        timerDisplay.textContent = '00:00:00';
+      }
+
+      function stopWorkoutTimer() {
+        if (!workoutRunning) return;
+        workoutRunning = false;
+        workoutToggleBtn.textContent = 'Começar Treino';
+        clearInterval(workoutTick);
+        workoutTick = null;
+        timerDisplay.textContent = '00:00:00';
+      }
+
+      function finishWorkout() {
+        const day = currentDay();
+        const list = state.workouts[activeDay];
+        state.history.unshift({
+          id: uid(),
+          date: new Date().toISOString(),
+          dayId: activeDay,
+          dayLabel: day.label,
+          exercises: list.map(ex => ({
+            name: ex.name,
+            sets: ex.sets,
+            reps: ex.reps,
+            weight: ex.weight
+          }))
+        });
+        list.forEach(ex => { ex.done = false; });
+        for (const key of [...restTimers.keys()]) clearRestTimer(key, false);
+        stopWorkoutTimer();
+        saveState();
+        renderDays();
+        renderExercises();
+        updateProgress();
+        showToast('Treino finalizado e salvo no histórico.');
+        if (statsModal.classList.contains('open')) refreshStats();
+      }
+
+      function formatDuration(ms) {
+        const total = Math.max(0, Math.floor(ms / 1000));
+        const h = String(Math.floor(total / 3600)).padStart(2, '0');
+        const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+        const s = String(total % 60).padStart(2, '0');
+        return `${h}:${m}:${s}`;
+      }
+
+      function parseWeight(value) {
+        const match = String(value).replace(',', '.').match(/-?\d+(?:\.\d+)?/);
+        if (!match) return null;
+        const num = Number(match[0]);
+        return Number.isFinite(num) ? num : null;
+      }
+
+      function uniqueExerciseNames() {
+        const names = new Set();
+        for (const day of DAYS) {
+          for (const ex of state.workouts[day.id]) {
+            if (ex.name && ex.name.trim()) names.add(ex.name.trim());
           }
         }
-      });
-
-      exerciseList.addEventListener('change', event => {
-        const input = event.target;
-        if (!(input instanceof HTMLInputElement) || input.dataset.field !== 'sets') return;
-        const exerciseId = input.dataset.exerciseId;
-        const exercise = workouts[activeDay].find(item => item.id === exerciseId);
-        if (!exercise) return;
-        if (input.value === '' || Number(input.value) < 1 || Number(input.value) > 99) {
-          input.value = exercise.sets || '3';
-          showToast('As séries devem ser entre 1 e 99.');
+        for (const entry of state.history) {
+          for (const ex of entry.exercises || []) {
+            if (ex.name && ex.name.trim()) names.add(ex.name.trim());
+          }
         }
-      });
+        return [...names].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+      }
 
-      function applyTheme(theme, persist = true) {
-        const isLight = theme === 'light';
-        root.dataset.theme = isLight ? 'light' : 'dark';
-        themeToggle.setAttribute('aria-pressed', String(isLight));
-        themeToggle.setAttribute('aria-label', isLight ? 'Ativar tema escuro' : 'Ativar tema claro');
-        themeLabel.textContent = isLight ? 'Tema escuro' : 'Tema claro';
-        themeIcon.innerHTML = isLight
-          ? '<path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.7 8.7 0 1 0 10.7 10.7Z"/>'
-          : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>';
-        const themeColor = isLight ? '#f2f7fa' : '#071827';
-        document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor);
-        if (persist) {
-          try { localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark'); }
-          catch (error) { console.warn('Não foi possível salvar o tema:', error); }
+      function refreshStats() {
+        const names = uniqueExerciseNames();
+        if (!names.length) {
+          exerciseSelect.innerHTML = '<option value="">Sem exercícios</option>';
+          renderHistory();
+          renderChart('');
+          return;
         }
+        const currentValue = exerciseSelect.value;
+        exerciseSelect.innerHTML = names.map(name => `<option value="${esc(name)}">${esc(name)}</option>`).join('');
+        exerciseSelect.value = names.includes(currentValue) ? currentValue : names[0];
+        renderHistory();
+        renderChart(exerciseSelect.value);
+      }
+
+      function renderHistory() {
+        historyList.innerHTML = '';
+        const entries = state.history.slice(0, 6);
+        if (!entries.length) {
+          historyList.innerHTML = '<div class="empty-card" style="margin:0"><strong>Sem histórico ainda</strong>Finalize um treino para salvar a evolução das cargas.</div>';
+          return;
+        }
+        entries.forEach(entry => {
+          const item = document.createElement('div');
+          item.className = 'history-item';
+          const date = new Date(entry.date);
+          const label = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).format(date);
+          const count = entry.exercises?.length || 0;
+          item.innerHTML = `<div><strong>${esc(entry.dayLabel)}</strong><span>${esc(label)} · ${count} exercício${count === 1 ? '' : 's'}</span></div><button class="history-delete" type="button" data-delete-history="${esc(entry.id)}" aria-label="Excluir treino de ${esc(label)}">Excluir</button>`;
+          historyList.appendChild(item);
+        });
+      }
+
+      function renderChart(exerciseName) {
+        const ctx = progressCanvas.getContext('2d');
+        const points = [];
+        for (const entry of [...state.history].reverse()) {
+          const found = (entry.exercises || []).find(ex => ex.name.trim() === exerciseName.trim());
+          if (!found) continue;
+          const value = parseWeight(found.weight);
+          if (value === null) continue;
+          points.push({ date: new Date(entry.date), value });
+        }
+
+        const labels = points.map(point => new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' }).format(point.date));
+        const data = points.map(point => point.value);
+
+        if (chart) {
+          chart.destroy();
+          chart = null;
+        }
+
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: exerciseName || 'Carga',
+              data,
+              tension: .35,
+              borderWidth: 3,
+              borderColor: '#00e5ff',
+              backgroundColor: 'rgba(0,229,255,.12)',
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              pointBackgroundColor: '#00e5ff',
+              pointBorderColor: '#eaffff',
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(5, 15, 21, .94)',
+                borderColor: 'rgba(0,229,255,.34)',
+                borderWidth: 1,
+                titleColor: '#fff',
+                bodyColor: '#fff'
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: 'rgba(145, 185, 200, .10)' },
+                ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#92acb9' }
+              },
+              y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(145, 185, 200, .10)' },
+                ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#92acb9' }
+              }
+            }
+          }
+        });
+
+        if (!points.length) {
+          const overlay = document.createElement('div');
+          overlay.className = 'empty-card';
+          overlay.style.marginTop = '10px';
+          overlay.innerHTML = '<strong>Sem dados suficientes</strong>Finalize treinos com este exercício para ver a progressão.';
+          const parent = progressCanvas.parentElement;
+          if (parent && !parent.querySelector('.empty-card')) parent.appendChild(overlay);
+        } else {
+          const existing = progressCanvas.parentElement.querySelector('.empty-card');
+          if (existing) existing.remove();
+        }
+      }
+
+      function openStats() {
+        statsModal.classList.add('open');
+        statsModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        refreshStats();
+        setTimeout(() => chart?.resize(), 50);
+      }
+
+      function closeStats() {
+        statsModal.classList.remove('open');
+        statsModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
       }
 
       themeToggle.addEventListener('click', () => {
-        applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+        const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+        applyTheme(next);
+        showToast(next === 'light' ? 'Tema claro ativado.' : 'Tema escuro ativado.');
       });
 
-      let savedTheme = 'dark';
-      try {
-        const storedTheme = localStorage.getItem(THEME_KEY);
-        if (storedTheme === 'light' || storedTheme === 'dark') savedTheme = storedTheme;
-      } catch (error) { console.warn('Não foi possível ler o tema salvo:', error); }
-      applyTheme(savedTheme, false);
-      renderAll();
+      workoutToggleBtn.addEventListener('click', () => {
+        if (workoutRunning) {
+          finishWorkout();
+          showToast('Treino finalizado.');
+        } else {
+          startWorkoutTimer();
+        }
+      });
+
+
+      addForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const name = newName.value.trim();
+        const sets = String(newSets.value).trim();
+        const reps = newReps.value.trim();
+        const weight = newWeight.value.trim();
+        if (!name) return newName.focus();
+        if (!sets || Number(sets) < 1 || Number(sets) > 99) return newSets.focus();
+        if (!reps) return newReps.focus();
+        state.workouts[activeDay].push({ id: uid(), name, sets, reps, weight, done: false });
+        saveAndRender();
+        addForm.reset();
+        newSets.value = '3';
+        newReps.value = '8–10';
+        newName.focus();
+        showToast('Exercício adicionado.');
+      });
+
+      openStatsBtn.addEventListener('click', openStats);
+      closeStatsBtn.addEventListener('click', closeStats);
+      statsModal.addEventListener('click', (event) => {
+        if (event.target === statsModal) closeStats();
+      });
+      exerciseSelect.addEventListener('change', () => renderChart(exerciseSelect.value));
+      historyList.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-delete-history]');
+        if (!button) return;
+        const entryId = button.dataset.deleteHistory;
+        const entry = state.history.find(item => item.id === entryId);
+        if (!entry) return;
+        if (!window.confirm('Deseja excluir este treino do histórico? Esta ação não pode ser desfeita.')) return;
+        state.history = state.history.filter(item => item.id !== entryId);
+        saveState();
+        refreshStats();
+        showToast('Treino removido do histórico.');
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && statsModal.classList.contains('open')) closeStats();
+      });
+
+      function init() {
+        activeDay = state.activeDay || 'segunda';
+        renderDays();
+        renderExercises();
+        updateProgress();
+        if (state.theme === 'light') applyTheme('light', false);
+        else applyTheme('dark', false);
+      }
+
+      init();
+      saveState();
     })();
-  </script>
-  <script>
-    // Registra o service worker para permitir abertura offline depois do primeiro acesso.
-    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+
+    // Registra o cache do app para carregamento mais confiável no iPhone.
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch((error) => {
-          console.warn('Não foi possível ativar o modo offline:', error);
-        });
+        navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('Service worker indisponível:', error));
       });
     }
   </script>
