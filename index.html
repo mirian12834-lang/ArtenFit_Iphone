@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Meu Treino">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <meta name="description" content="Organize seus treinos da semana e acompanhe os pesos de cada exercício, direto no celular.">
+  <title>Meu Treino — Academia</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071827;
+      --bg-glow: #0a2638;
+      --surface: #0d2233;
+      --surface-2: #122b3e;
+      --surface-3: #18364a;
+      --text: #effaff;
+      --muted: #9bb6c5;
+      --border: rgba(151, 200, 220, .15);
+      --accent: #43d9f2;
+      --accent-strong: #13b8d5;
+      --accent-soft: rgba(67, 217, 242, .12);
+      --danger: #ff7388;
+      --danger-soft: rgba(255, 115, 136, .11);
+      --shadow: 0 16px 38px rgba(0, 0, 0, .20);
+      --input-bg: rgba(2, 14, 24, .34);
+      --ring: rgba(67, 217, 242, .34);
+    }
+
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f2f7fa;
+      --bg-glow: #e5f7fb;
+      --surface: #ffffff;
+      --surface-2: #f4f8fb;
+      --surface-3: #eaf2f6;
+      --text: #122b3a;
+      --muted: #607888;
+      --border: rgba(25, 68, 91, .13);
+      --accent: #087f9b;
+      --accent-strong: #056b83;
+      --accent-soft: rgba(8, 127, 155, .09);
+      --danger: #c83c57;
+      --danger-soft: rgba(200, 60, 87, .08);
+      --shadow: 0 14px 32px rgba(33, 72, 94, .08);
+      --input-bg: #f7fafc;
+      --ring: rgba(8, 127, 155, .23);
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 88% 0%, var(--bg-glow) 0, transparent 36rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+      transition: background-color .2s ease, color .2s ease;
+    }
+
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, input:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: max(12px, env(safe-area-inset-top)) 16px 12px;
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in srgb, var(--bg) 90%, transparent);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .header-inner, main { width: min(100% - 32px, 760px); margin-inline: auto; }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .brand-mark {
+      width: 42px; height: 42px; flex: 0 0 42px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      color: #06202b;
+      background: linear-gradient(140deg, #73efff, var(--accent-strong));
+      box-shadow: 0 7px 22px rgba(19, 184, 213, .18);
+    }
+    .brand-mark svg { width: 23px; height: 23px; }
+    .brand-copy { min-width: 0; }
+    .brand-name { display: block; font-weight: 850; letter-spacing: -.045em; font-size: 1.12rem; line-height: 1.12; }
+    .brand-subtitle { display: block; margin-top: 3px; color: var(--muted); font-size: .73rem; }
+    .theme-toggle {
+      min-width: 44px; height: 44px; padding: 0 12px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border: 1px solid var(--border); border-radius: 14px;
+      color: var(--text); background: var(--surface);
+      cursor: pointer; font-size: .82rem; font-weight: 750;
+      transition: transform .15s ease, background .2s ease;
+    }
+    .theme-toggle:active { transform: scale(.96); }
+    .theme-toggle svg { width: 18px; height: 18px; }
+
+    main { padding: 26px 0 calc(44px + env(safe-area-inset-bottom)); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); text-transform: uppercase; font-size: .72rem; letter-spacing: .15em; font-weight: 850; }
+    .intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 21px; }
+    h1 { margin: 0; font-size: clamp(1.75rem, 8vw, 2.45rem); letter-spacing: -.06em; line-height: 1.08; }
+    .intro-copy { max-width: 390px; margin: 9px 0 0; color: var(--muted); font-size: .93rem; }
+    .week-badge { flex: 0 0 auto; padding: 8px 11px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); background: var(--surface); font-size: .75rem; font-weight: 750; }
+
+    .summary-card {
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 17px 18px; margin-bottom: 23px;
+      background: linear-gradient(115deg, var(--surface-2), var(--surface));
+      border: 1px solid var(--border); border-radius: 21px; box-shadow: var(--shadow);
+    }
+    .summary-card::after { content: ""; position: absolute; width: 130px; height: 130px; right: -45px; top: -65px; border-radius: 50%; background: var(--accent-soft); pointer-events: none; }
+    .summary-label { color: var(--muted); font-size: .8rem; font-weight: 650; }
+    .summary-number { margin-top: 3px; font-size: 1.45rem; letter-spacing: -.045em; font-weight: 850; }
+    .summary-number span { color: var(--muted); font-size: .86rem; font-weight: 650; letter-spacing: 0; }
+    .summary-icon { position: relative; z-index: 1; width: 46px; height: 46px; flex: 0 0 46px; display: grid; place-items: center; background: var(--accent-soft); border-radius: 15px; color: var(--accent); }
+    .summary-icon svg { width: 24px; height: 24px; }
+
+    .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 12px; }
+    .section-heading h2 { margin: 0; font-size: 1rem; letter-spacing: -.025em; }
+    .section-note { color: var(--muted); font-size: .76rem; }
+    .day-tabs {
+      display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px;
+      margin-bottom: 20px;
+    }
+    .day-tab {
+      min-width: 0; min-height: 64px; padding: 9px 3px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+      border: 1px solid var(--border); border-radius: 15px;
+      background: var(--surface); color: var(--muted); cursor: pointer;
+      transition: .16s ease;
+    }
+    .day-tab .day-short { font-weight: 800; font-size: .78rem; }
+    .day-tab .day-count { font-size: .66rem; opacity: .85; }
+    .day-tab[aria-selected="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
+    .day-tab[aria-selected="true"] .day-short { color: var(--accent); }
+
+    .exercise-list { display: grid; gap: 12px; }
+    .exercise-card {
+      padding: 15px; border: 1px solid var(--border); border-radius: 20px;
+      background: var(--surface); box-shadow: 0 7px 22px rgba(0, 0, 0, .04);
+      animation: arrive .22s ease both;
+    }
+    @keyframes arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .exercise-top { display: flex; align-items: flex-start; gap: 11px; }
+    .exercise-symbol { display: grid; place-items: center; width: 43px; height: 43px; flex: 0 0 43px; border-radius: 14px; color: var(--accent); background: var(--accent-soft); }
+    .exercise-symbol svg { width: 22px; height: 22px; }
+    .exercise-main { min-width: 0; flex: 1; padding-top: 1px; }
+    .exercise-name {
+      width: 100%; min-width: 0; padding: 0; border: 0; border-radius: 5px;
+      background: transparent; color: var(--text); font-weight: 820; font-size: 1rem; letter-spacing: -.025em;
+    }
+    .exercise-name::placeholder { color: var(--muted); }
+    .exercise-help { margin-top: 4px; color: var(--muted); font-size: .75rem; }
+    .remove-button {
+      width: 39px; height: 39px; flex: 0 0 39px; display: grid; place-items: center;
+      margin: -3px -3px 0 0; border: 1px solid transparent; border-radius: 12px;
+      color: var(--muted); background: transparent; cursor: pointer;
+      transition: background .16s ease, color .16s ease;
+    }
+    .remove-button:hover, .remove-button:focus-visible { color: var(--danger); background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 25%, transparent); }
+    .remove-button svg { width: 18px; height: 18px; }
+    .exercise-fields { display: grid; grid-template-columns: .8fr .8fr 1.4fr; gap: 9px; margin-top: 16px; }
+    .field label { display: block; margin: 0 0 6px 2px; color: var(--muted); font-size: .7rem; font-weight: 750; }
+    .field input {
+      display: block; width: 100%; min-width: 0; min-height: 47px; padding: 10px 11px;
+      border: 1px solid var(--border); border-radius: 12px;
+      background: var(--input-bg); color: var(--text); font-size: .91rem; font-weight: 700;
+      outline: none; transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
+    .weight-field input { border-color: color-mix(in srgb, var(--accent) 34%, var(--border)); }
+    .weight-field input::placeholder { color: var(--muted); font-weight: 500; }
+
+    .empty-state { padding: 30px 20px; text-align: center; border: 1px dashed var(--border); border-radius: 20px; background: var(--surface); }
+    .empty-icon { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 17px; background: var(--accent-soft); color: var(--accent); }
+    .empty-icon svg { width: 25px; height: 25px; }
+    .empty-state h3 { margin: 0; font-size: 1rem; }
+    .empty-state p { margin: 7px 0 0; color: var(--muted); font-size: .84rem; }
+
+    .add-panel { margin-top: 24px; padding: 18px; border: 1px solid var(--border); border-radius: 21px; background: var(--surface-2); }
+    .add-title-row { display: flex; align-items: center; gap: 11px; margin-bottom: 16px; }
+    .add-icon { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); }
+    .add-icon svg { width: 21px; height: 21px; }
+    .add-title-row h2 { margin: 0; font-size: 1rem; letter-spacing: -.02em; }
+    .add-title-row p { margin: 3px 0 0; color: var(--muted); font-size: .77rem; }
+    .add-form { display: grid; grid-template-columns: minmax(0, 1fr) 1fr 1fr; gap: 10px; }
+    .add-form .name-field { grid-column: 1 / -1; }
+    .add-form .field input { background: var(--surface); }
+    .primary-button {
+      width: 100%; min-height: 50px; margin-top: 13px; padding: 12px 16px;
+      display: inline-flex; justify-content: center; align-items: center; gap: 9px;
+      border: 0; border-radius: 14px; color: #04202a;
+      background: linear-gradient(115deg, #66eafa, var(--accent));
+      font-size: .92rem; font-weight: 850; cursor: pointer;
+      box-shadow: 0 8px 20px rgba(19, 184, 213, .16); transition: transform .15s ease, filter .15s ease;
+    }
+    .primary-button:hover { filter: brightness(1.04); }
+    .primary-button:active { transform: scale(.985); }
+    .primary-button svg { width: 19px; height: 19px; }
+    :root[data-theme="light"] .primary-button { color: #fff; background: linear-gradient(115deg, #0b93ae, #087b98); }
+
+    .storage-note { display: flex; align-items: flex-start; justify-content: center; gap: 8px; margin: 19px 0 0; color: var(--muted); font-size: .75rem; text-align: center; }
+    .storage-note svg { width: 15px; height: 15px; flex: 0 0 15px; margin-top: 1px; color: var(--accent); }
+    .toast {
+      position: fixed; z-index: 50; left: 50%; bottom: max(22px, env(safe-area-inset-bottom));
+      width: max-content; max-width: calc(100% - 32px); padding: 12px 16px;
+      transform: translate(-50%, 18px); opacity: 0; pointer-events: none;
+      border: 1px solid var(--border); border-radius: 14px; background: var(--surface-3); color: var(--text);
+      box-shadow: var(--shadow); font-size: .84rem; font-weight: 700; text-align: center;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.visible { opacity: 1; transform: translate(-50%, 0); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    @media (min-width: 600px) {
+      .app-header { padding-inline: 24px; }
+      .header-inner, main { width: min(100% - 48px, 760px); }
+      main { padding-top: 36px; }
+      .intro { margin-bottom: 25px; }
+      .day-tabs { gap: 10px; }
+      .day-tab { min-height: 71px; }
+      .exercise-card { padding: 18px; }
+      .exercise-fields { margin-top: 18px; }
+      .add-panel { padding: 22px; }
+      .add-form { grid-template-columns: minmax(0, 2fr) minmax(82px, .7fr) minmax(82px, .7fr); }
+      .add-form .name-field { grid-column: auto; }
+      .primary-button { width: auto; min-width: 190px; margin-left: auto; }
+      .add-panel form { display: flex; flex-wrap: wrap; align-items: end; }
+      .add-panel .add-form { flex: 1 1 100%; }
+      .add-panel .primary-button { flex: 0 0 auto; }
+    }
+    @media (max-width: 360px) {
+      .header-inner, main { width: calc(100% - 24px); }
+      .app-header { padding-inline: 12px; }
+      .brand-subtitle { font-size: .68rem; }
+      .day-tabs { gap: 4px; }
+      .day-tab { border-radius: 12px; }
+      .exercise-card { padding: 12px; }
+      .exercise-fields { gap: 6px; }
+      .field input { padding-inline: 8px; font-size: .85rem; }
+      .field label { font-size: .66rem; }
+      .add-panel { padding: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand" aria-label="Meu Treino">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8v8M3.5 10v4M10 6v12M14 6v12M18 8v8M20.5 10v4M10 12h4"/></svg>
+        </div>
+        <div class="brand-copy"><span class="brand-name">Meu Treino</span><span class="brand-subtitle">Seu progresso, no seu ritmo</span></div>
+      </div>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar tema claro e escuro" aria-pressed="false">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+        <span id="themeLabel">Tema claro</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="pageTitle">
+      <div>
+        <p class="eyebrow">Constância gera resultado</p>
+        <h1 id="pageTitle">Sua semana de treino<span style="color:var(--accent)">.</span></h1>
+        <p class="intro-copy">Organize os exercícios, acompanhe as cargas e mantenha seu foco em cada série.</p>
+      </div>
+      <span class="week-badge">SEG — SÁB</span>
+    </section>
+
+    <section class="summary-card" aria-live="polite" aria-atomic="true">
+      <div>
+        <div class="summary-label" id="summaryDay">Treino de segunda-feira</div>
+        <div class="summary-number"><span id="exerciseCount">4</span> <span id="exerciseWord">exercícios planejados</span></div>
+      </div>
+      <div class="summary-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12a2 2 0 0 1 2 2v16H4V5a2 2 0 0 1 2-2Z"/><path d="M8 8h8M8 12h2m3 0h3M8 16h2m3 0h3"/></svg>
+      </div>
+    </section>
+
+    <section aria-labelledby="daysHeading">
+      <div class="section-heading"><h2 id="daysHeading">Dias da semana</h2><span class="section-note">Toque para alternar</span></div>
+      <div class="day-tabs" id="dayTabs" role="tablist" aria-label="Dias de treino"></div>
+    </section>
+
+    <section aria-labelledby="exerciseHeading">
+      <div class="section-heading"><h2 id="exerciseHeading">Exercícios</h2><span class="section-note">Edite os campos diretamente</span></div>
+      <div class="exercise-list" id="exerciseList" aria-live="polite"></div>
+    </section>
+
+    <section class="add-panel" aria-labelledby="addHeading">
+      <div class="add-title-row">
+        <div class="add-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div><h2 id="addHeading">Adicionar exercício</h2><p id="addDescription">O novo exercício será incluído na segunda-feira.</p></div>
+      </div>
+      <form id="addForm">
+        <div class="add-form">
+          <div class="field name-field"><label for="newExerciseName">Nome do exercício</label><input id="newExerciseName" name="name" type="text" maxlength="80" placeholder="Ex.: Supino inclinado" required autocomplete="off"></div>
+          <div class="field"><label for="newExerciseSets">Séries</label><input id="newExerciseSets" name="sets" type="number" min="1" max="99" step="1" value="3" required inputmode="numeric"></div>
+          <div class="field"><label for="newExerciseReps">Repetições</label><input id="newExerciseReps" name="reps" type="text" maxlength="20" value="10–12" placeholder="Ex.: 10–12" required></div>
+        </div>
+        <button class="primary-button" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Adicionar ao treino</button>
+      </form>
+    </section>
+
+    <p class="storage-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3"/></svg>Seus dados ficam salvos neste navegador, sem precisar de conta ou servidor.</p>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const DATA_KEY = 'meuTreino.data.v1';
+      const THEME_KEY = 'meuTreino.theme.v1';
+      const DAYS = [
+        { id: 'segunda', label: 'Segunda-feira', short: 'SEG' },
+        { id: 'terca', label: 'Terça-feira', short: 'TER' },
+        { id: 'quarta', label: 'Quarta-feira', short: 'QUA' },
+        { id: 'quinta', label: 'Quinta-feira', short: 'QUI' },
+        { id: 'sexta', label: 'Sexta-feira', short: 'SEX' },
+        { id: 'sabado', label: 'Sábado', short: 'SÁB' }
+      ];
+
+      const makeId = () => {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+        return 'ex-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+      };
+
+      function createDefaultData() {
+        return {
+          segunda: [
+            { id: makeId(), name: 'Supino reto', sets: '4', reps: '8–10', weight: '25 kg' },
+            { id: makeId(), name: 'Supino inclinado com halteres', sets: '3', reps: '10–12', weight: '16 kg' },
+            { id: makeId(), name: 'Crucifixo na máquina', sets: '3', reps: '12', weight: '30 kg' },
+            { id: makeId(), name: 'Tríceps na polia', sets: '3', reps: '12', weight: '20 kg' }
+          ],
+          terca: [
+            { id: makeId(), name: 'Puxada frontal', sets: '4', reps: '8–12', weight: '35 kg' },
+            { id: makeId(), name: 'Remada baixa', sets: '3', reps: '10–12', weight: '30 kg' },
+            { id: makeId(), name: 'Remada unilateral com halter', sets: '3', reps: '10 cada lado', weight: '14 kg' },
+            { id: makeId(), name: 'Rosca direta', sets: '3', reps: '12', weight: '12 kg' }
+          ],
+          quarta: [
+            { id: makeId(), name: 'Agachamento livre', sets: '4', reps: '8–10', weight: '40 kg' },
+            { id: makeId(), name: 'Leg press', sets: '3', reps: '10–12', weight: '100 kg' },
+            { id: makeId(), name: 'Cadeira extensora', sets: '3', reps: '12', weight: '30 kg' },
+            { id: makeId(), name: 'Mesa flexora', sets: '3', reps: '12', weight: '25 kg' }
+          ],
+          quinta: [
+            { id: makeId(), name: 'Desenvolvimento com halteres', sets: '3', reps: '10', weight: '12 kg' },
+            { id: makeId(), name: 'Elevação lateral', sets: '3', reps: '12–15', weight: '6 kg' },
+            { id: makeId(), name: 'Face pull', sets: '3', reps: '12–15', weight: '15 kg' }
+          ],
+          sexta: [
+            { id: makeId(), name: 'Levantamento terra romeno', sets: '3', reps: '8–10', weight: '35 kg' },
+            { id: makeId(), name: 'Afundo com halteres', sets: '3', reps: '10 cada lado', weight: '10 kg' },
+            { id: makeId(), name: 'Panturrilha em pé', sets: '4', reps: '15', weight: '20 kg' }
+          ],
+          sabado: [
+            { id: makeId(), name: 'Prancha abdominal', sets: '3', reps: '30–45 s', weight: 'Corpo livre' },
+            { id: makeId(), name: 'Abdominal na polia', sets: '3', reps: '12–15', weight: '15 kg' },
+            { id: makeId(), name: 'Caminhada inclinada', sets: '1', reps: '15–20 min', weight: 'Sem carga' }
+          ]
+        };
+      }
+
+      function isValidData(value) {
+        if (!value || typeof value !== 'object') return false;
+        return DAYS.every(day => Array.isArray(value[day.id]) && value[day.id].every(ex =>
+          ex && typeof ex === 'object' && typeof ex.id === 'string' &&
+          typeof ex.name === 'string' && typeof ex.sets === 'string' &&
+          typeof ex.reps === 'string' && typeof ex.weight === 'string'
+        ));
+      }
+
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(DATA_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (isValidData(parsed)) return parsed;
+          }
+        } catch (error) {
+          console.warn('Não foi possível ler os treinos salvos:', error);
+        }
+        const defaults = createDefaultData();
+        try { localStorage.setItem(DATA_KEY, JSON.stringify(defaults)); }
+        catch (error) { console.warn('Não foi possível salvar os treinos iniciais:', error); }
+        return defaults;
+      }
+
+      let workouts = loadData();
+      let activeDay = 'segunda';
+      let toastTimeout;
+
+      const root = document.documentElement;
+      const dayTabs = document.getElementById('dayTabs');
+      const exerciseList = document.getElementById('exerciseList');
+      const summaryDay = document.getElementById('summaryDay');
+      const exerciseCount = document.getElementById('exerciseCount');
+      const exerciseWord = document.getElementById('exerciseWord');
+      const addDescription = document.getElementById('addDescription');
+      const addForm = document.getElementById('addForm');
+      const newExerciseName = document.getElementById('newExerciseName');
+      const newExerciseSets = document.getElementById('newExerciseSets');
+      const newExerciseReps = document.getElementById('newExerciseReps');
+      const themeToggle = document.getElementById('themeToggle');
+      const themeLabel = document.getElementById('themeLabel');
+      const themeIcon = document.getElementById('themeIcon');
+      const toast = document.getElementById('toast');
+
+      const icons = {
+        exercise: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8v8M3.5 10v4M10 6v12M14 6v12M18 8v8M20.5 10v4M10 12h4"/></svg>',
+        trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6"/></svg>',
+        empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'
+      };
+
+      function escapeHTML(value) {
+        return String(value).replace(/[&<>"']/g, character => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[character]);
+      }
+
+      function saveData() {
+        try {
+          localStorage.setItem(DATA_KEY, JSON.stringify(workouts));
+          return true;
+        } catch (error) {
+          console.error('Não foi possível salvar os treinos:', error);
+          showToast('Não foi possível salvar. Verifique o espaço do navegador.');
+          return false;
+        }
+      }
+
+      function showToast(message) {
+        window.clearTimeout(toastTimeout);
+        toast.textContent = message;
+        toast.classList.add('visible');
+        toastTimeout = window.setTimeout(() => toast.classList.remove('visible'), 2300);
+      }
+
+      function getDay(dayId = activeDay) {
+        return DAYS.find(day => day.id === dayId) || DAYS[0];
+      }
+
+      function renderTabs() {
+        dayTabs.replaceChildren();
+        DAYS.forEach(day => {
+          const tab = document.createElement('button');
+          tab.type = 'button';
+          tab.className = 'day-tab';
+          tab.setAttribute('role', 'tab');
+          tab.setAttribute('aria-selected', String(day.id === activeDay));
+          tab.setAttribute('aria-controls', 'exerciseList');
+          tab.id = 'tab-' + day.id;
+          tab.innerHTML = '<span class="day-short">' + day.short + '</span><span class="day-count">' + workouts[day.id].length + (workouts[day.id].length === 1 ? ' treino' : ' treinos') + '</span>';
+          tab.addEventListener('click', () => {
+            activeDay = day.id;
+            renderAll();
+          });
+          dayTabs.appendChild(tab);
+        });
+      }
+
+      function createField(labelText, fieldName, value, exerciseId, placeholder = '') {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'field' + (fieldName === 'weight' ? ' weight-field' : '');
+        const label = document.createElement('label');
+        const input = document.createElement('input');
+        const inputId = 'field-' + exerciseId + '-' + fieldName;
+        label.htmlFor = inputId;
+        label.textContent = labelText;
+        input.id = inputId;
+        input.name = fieldName;
+        input.value = value;
+        input.dataset.exerciseId = exerciseId;
+        input.dataset.field = fieldName;
+        input.autocomplete = 'off';
+        if (fieldName === 'sets') {
+          input.type = 'number'; input.min = '1'; input.max = '99'; input.step = '1'; input.inputMode = 'numeric';
+          input.setAttribute('aria-label', labelText);
+        } else {
+          input.type = 'text'; input.maxLength = fieldName === 'reps' ? 20 : 40;
+          if (fieldName === 'weight') input.inputMode = 'decimal';
+          if (placeholder) input.placeholder = placeholder;
+        }
+        wrapper.append(label, input);
+        return wrapper;
+      }
+
+      function renderExercises() {
+        const day = getDay();
+        const exercises = workouts[activeDay];
+        exerciseList.replaceChildren();
+        summaryDay.textContent = 'Treino de ' + day.label.toLocaleLowerCase('pt-BR');
+        exerciseCount.textContent = String(exercises.length);
+        exerciseWord.textContent = exercises.length === 1 ? 'exercício planejado' : 'exercícios planejados';
+        addDescription.textContent = 'O novo exercício será incluído em ' + day.label.toLocaleLowerCase('pt-BR') + '.';
+
+        if (exercises.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.innerHTML = '<div class="empty-icon">' + icons.empty + '</div><h3>Nenhum exercício por aqui</h3><p>Use o formulário abaixo para montar o treino deste dia.</p>';
+          exerciseList.appendChild(empty);
+          return;
+        }
+
+        exercises.forEach((exercise, index) => {
+          const card = document.createElement('article');
+          card.className = 'exercise-card';
+          card.dataset.cardId = exercise.id;
+
+          const top = document.createElement('div');
+          top.className = 'exercise-top';
+          const symbol = document.createElement('div');
+          symbol.className = 'exercise-symbol';
+          symbol.innerHTML = icons.exercise;
+
+          const main = document.createElement('div');
+          main.className = 'exercise-main';
+          const name = document.createElement('input');
+          name.type = 'text'; name.maxLength = 80; name.required = true;
+          name.className = 'exercise-name'; name.value = exercise.name;
+          name.dataset.exerciseId = exercise.id; name.dataset.field = 'name';
+          name.setAttribute('aria-label', 'Nome do exercício ' + (index + 1));
+          const help = document.createElement('div');
+          help.className = 'exercise-help';
+          help.textContent = 'Exercício ' + String(index + 1).padStart(2, '0') + ' · As alterações são salvas automaticamente';
+          main.append(name, help);
+
+          const remove = document.createElement('button');
+          remove.type = 'button'; remove.className = 'remove-button';
+          remove.innerHTML = icons.trash;
+          remove.setAttribute('aria-label', 'Remover ' + exercise.name);
+          remove.title = 'Remover exercício';
+          remove.addEventListener('click', () => removeExercise(exercise.id));
+          top.append(symbol, main, remove);
+
+          const fields = document.createElement('div');
+          fields.className = 'exercise-fields';
+          fields.append(
+            createField('Séries', 'sets', exercise.sets, exercise.id),
+            createField('Repetições', 'reps', exercise.reps, exercise.id),
+            createField('Peso atual', 'weight', exercise.weight, exercise.id, 'Ex.: 25 kg')
+          );
+          card.append(top, fields);
+          exerciseList.appendChild(card);
+        });
+      }
+
+      function renderAll() {
+        renderTabs();
+        renderExercises();
+        const currentTab = document.getElementById('tab-' + activeDay);
+        if (currentTab) currentTab.setAttribute('tabindex', '0');
+      }
+
+      function removeExercise(exerciseId) {
+        const exercises = workouts[activeDay];
+        const index = exercises.findIndex(exercise => exercise.id === exerciseId);
+        if (index < 0) return;
+        const name = exercises[index].name || 'Exercício';
+        exercises.splice(index, 1);
+        saveData();
+        renderAll();
+        showToast('“' + name + '” foi removido do treino.');
+      }
+
+      addForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const name = newExerciseName.value.trim();
+        const sets = newExerciseSets.value.trim();
+        const reps = newExerciseReps.value.trim();
+        if (!name) {
+          newExerciseName.focus();
+          return;
+        }
+        if (!sets || Number(sets) < 1 || Number(sets) > 99) {
+          newExerciseSets.setCustomValidity('Informe de 1 a 99 séries.');
+          newExerciseSets.reportValidity();
+          newExerciseSets.setCustomValidity('');
+          return;
+        }
+        if (!reps) {
+          newExerciseReps.focus();
+          return;
+        }
+        workouts[activeDay].push({ id: makeId(), name, sets: String(Number(sets)), reps, weight: '' });
+        saveData();
+        renderAll();
+        addForm.reset();
+        newExerciseSets.value = '3';
+        newExerciseReps.value = '10–12';
+        newExerciseName.focus();
+        showToast('Exercício adicionado a ' + getDay().label.toLocaleLowerCase('pt-BR') + '.');
+      });
+
+      exerciseList.addEventListener('input', event => {
+        const input = event.target;
+        if (!(input instanceof HTMLInputElement)) return;
+        const exerciseId = input.dataset.exerciseId;
+        const field = input.dataset.field;
+        if (!exerciseId || !['name', 'sets', 'reps', 'weight'].includes(field)) return;
+        const exercise = workouts[activeDay].find(item => item.id === exerciseId);
+        if (!exercise) return;
+        if (field === 'sets') {
+          if (input.value !== '' && Number(input.value) < 1) return;
+          if (input.value !== '' && Number(input.value) > 99) return;
+          exercise[field] = input.value;
+        } else {
+          exercise[field] = input.value;
+        }
+        saveData();
+        if (field === 'name') {
+          const remove = input.closest('.exercise-card')?.querySelector('.remove-button');
+          if (remove) {
+            const cleanName = input.value.trim();
+            remove.setAttribute('aria-label', 'Remover ' + (cleanName || 'exercício'));
+          }
+        }
+      });
+
+      exerciseList.addEventListener('change', event => {
+        const input = event.target;
+        if (!(input instanceof HTMLInputElement) || input.dataset.field !== 'sets') return;
+        const exerciseId = input.dataset.exerciseId;
+        const exercise = workouts[activeDay].find(item => item.id === exerciseId);
+        if (!exercise) return;
+        if (input.value === '' || Number(input.value) < 1 || Number(input.value) > 99) {
+          input.value = exercise.sets || '3';
+          showToast('As séries devem ser entre 1 e 99.');
+        }
+      });
+
+      function applyTheme(theme, persist = true) {
+        const isLight = theme === 'light';
+        root.dataset.theme = isLight ? 'light' : 'dark';
+        themeToggle.setAttribute('aria-pressed', String(isLight));
+        themeToggle.setAttribute('aria-label', isLight ? 'Ativar tema escuro' : 'Ativar tema claro');
+        themeLabel.textContent = isLight ? 'Tema escuro' : 'Tema claro';
+        themeIcon.innerHTML = isLight
+          ? '<path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.7 8.7 0 1 0 10.7 10.7Z"/>'
+          : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>';
+        const themeColor = isLight ? '#f2f7fa' : '#071827';
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor);
+        if (persist) {
+          try { localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark'); }
+          catch (error) { console.warn('Não foi possível salvar o tema:', error); }
+        }
+      }
+
+      themeToggle.addEventListener('click', () => {
+        applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+      });
+
+      let savedTheme = 'dark';
+      try {
+        const storedTheme = localStorage.getItem(THEME_KEY);
+        if (storedTheme === 'light' || storedTheme === 'dark') savedTheme = storedTheme;
+      } catch (error) { console.warn('Não foi possível ler o tema salvo:', error); }
+      applyTheme(savedTheme, false);
+      renderAll();
+    })();
+  </script>
+  <script>
+    // Registra o service worker para permitir abertura offline depois do primeiro acesso.
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch((error) => {
+          console.warn('Não foi possível ativar o modo offline:', error);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
