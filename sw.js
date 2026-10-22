@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meutreino-shell-v1';
+const CACHE_NAME = 'artenfit-shell-v3';
 const APP_SHELL = [
   './',
   './index.html',

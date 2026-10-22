@@ -6,14 +6,14 @@
   <meta name="theme-color" content="#001930">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="MeuTreino">
+  <meta name="apple-mobile-web-app-title" content="Arten Fit">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-  <meta name="description" content="Treinos de academia organizados por dia, com pesos salvos no navegador, progresso e histórico.">
-  <title>MeuTreino</title>
+  <meta name="description" content="Arten Fit: organize seus treinos, acompanhe seu progresso e registre seu histórico.">
+  <title>Arten Fit</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -870,7 +870,7 @@
     <div class="shell">
       <div class="header-row">
         <div class="title-wrap">
-          <h1>MeuTreino</h1>
+          <h1 aria-label="Arten Fit"><span style="color:#eef7fb">Arten</span> <span style="color:#00e5ff">Fit</span></h1>
         </div>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar tema" aria-pressed="false">
           <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1380,28 +1380,15 @@
       }
 
       function flashAndBeep() {
+        // O iPhone/Safari pode não oferecer vibração em páginas web.
+        // Mantém o aviso visual e tenta o padrão de vibração quando suportado.
         document.body.classList.add('rest-flash');
         setTimeout(() => document.body.classList.remove('rest-flash'), 1500);
         try {
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          if (!AudioCtx) return;
-          const audio = new AudioCtx();
-          const osc = audio.createOscillator();
-          const gain = audio.createGain();
-          osc.type = 'sine';
-          osc.frequency.value = 880;
-          gain.gain.value = 0.0001;
-          osc.connect(gain);
-          gain.connect(audio.destination);
-          osc.start();
-          gain.gain.exponentialRampToValueAtTime(0.12, audio.currentTime + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.18);
-          osc.stop(audio.currentTime + 0.2);
-          osc.onended = () => audio.close?.();
+          if (navigator.vibrate) navigator.vibrate([280, 160, 280]);
         } catch (error) {
           console.warn(error);
         }
-        if (navigator.vibrate) navigator.vibrate([120, 80, 120]);
       }
 
       function startWorkoutTimer() {

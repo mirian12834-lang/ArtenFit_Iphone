@@ -1,6 +1,6 @@
-# Meu Treino — versão para iPhone e Android (PWA)
+# Arten Fit — versão para iPhone e Android (PWA)
 
-Esta pasta contém o site do Meu Treino preparado para ser instalado na tela inicial do iPhone como um app da web (PWA). Os exercícios, as cargas e o tema são salvos no `localStorage` do navegador. O `service worker` armazena os arquivos do app para permitir reabertura offline depois que ele foi carregado uma primeira vez.
+Esta pasta contém o site do Arten Fit preparado para ser instalado na tela inicial do iPhone como um app da web (PWA). Os exercícios, as cargas e o tema são salvos no `localStorage` do navegador. O `service worker` armazena os arquivos do app para permitir reabertura offline depois que ele foi carregado uma primeira vez.
 
 ## Importante
 
@@ -8,18 +8,18 @@ Para instalar como app na tela inicial e ativar o modo offline, publique todos o
 
 ## Publicar com GitHub Pages
 
-1. Entre em https://github.com e crie um repositório novo, por exemplo `meu-treino`.
+1. Entre em https://github.com e crie um repositório novo, por exemplo `arten-fit`.
 2. Envie **todos os arquivos e pastas que estão dentro desta pasta**, incluindo `index.html`, `manifest.webmanifest`, `sw.js` e `icons/` (não envie apenas o ZIP).
 3. No repositório, abra **Settings → Pages**.
 4. Em **Build and deployment**, escolha **Deploy from a branch**; selecione a branch `main` e a pasta `/(root)`, depois clique em **Save**.
-5. Aguarde o GitHub Pages publicar e abra o endereço HTTPS que ele indicar. A URL costuma ter o formato `https://SEU-USUARIO.github.io/meu-treino/`.
+5. Aguarde o GitHub Pages publicar e abra o endereço HTTPS que ele indicar. A URL costuma ter o formato `https://SEU-USUARIO.github.io/arten-fit/`.
 
 ## Instalar no iPhone
 
 1. Abra a URL publicada no **Safari** do iPhone.
 2. Toque em **Compartilhar**.
 3. Selecione **Adicionar à Tela de Início**.
-4. Confirme o nome “Meu Treino” e toque em **Adicionar**.
+4. Confirme o nome “Arten Fit” e toque em **Adicionar**.
 5. Abra o ícone criado na tela inicial. Abra o app pelo menos uma vez com internet para que os arquivos offline sejam armazenados.
 
 ## Atualização

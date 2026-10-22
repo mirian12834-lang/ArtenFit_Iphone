@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "MeuTreino",
-  "short_name": "MeuTreino",
-  "description": "Organize seus treinos, acompanhe seu progresso e registre seu histórico.",
+  "name": "Arten Fit",
+  "short_name": "Arten Fit",
+  "description": "Organize seus treinos, acompanhe seu progresso e registre seu histórico com o Arten Fit.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",
@@ -11,7 +11,17 @@
   "background_color": "#001930",
   "theme_color": "#001930",
   "icons": [
-    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
