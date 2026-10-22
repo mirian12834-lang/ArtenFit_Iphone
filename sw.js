@@ -1,7 +1,8 @@
-const CACHE_NAME = 'artenfit-shell-v3';
+const CACHE_NAME = 'artenfit-shell-v4';
 const APP_SHELL = [
   './',
   './index.html',
+  './logo-arten-fit.png',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',

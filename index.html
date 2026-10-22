@@ -3,39 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#001930">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Arten Fit">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="format-detection" content="telephone=no">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-  <meta name="description" content="Arten Fit: organize seus treinos, acompanhe seu progresso e registre seu histórico.">
+  <meta name="theme-color" content="#05070a">
+  <meta name="description" content="Treinos de academia organizados por dia, com pesos salvos no navegador, progresso e histórico.">
   <title>Arten Fit</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
       color-scheme: dark;
-      --bg: #001930;
-      --bg2: #002548;
-      --surface: #002548;
-      --surface-2: #002548;
-      --surface-3: #002c53;
-      --card: #002548;
-      --card-strong: #002f5a;
+      --bg: #05070a;
+      --bg2: #0a1118;
+      --surface: #0d141d;
+      --surface-2: #0d141d;
+      --surface-3: #121a24;
+      --card: #0d141d;
+      --card-strong: #121c27;
       --text: #eef7fb;
       --muted: #92acb9;
-      --line: rgba(152, 208, 227, .12);
-      --accent: #00e5ff;
-      --accent-2: #00adb5;
-      --accent-soft: rgba(0, 229, 255, .11);
+      --line: rgba(130, 150, 165, .12);
+      --accent: #45dbf6;
+      --accent-2: #16b8d8;
+      --accent-soft: rgba(69, 219, 246, .11);
       --danger: #ff7589;
       --danger-soft: rgba(255, 117, 137, .12);
-      --shadow: 0 18px 42px rgba(0, 0, 0, .22);
-      --field: rgba(4, 17, 24, .34);
+      --shadow: 0 18px 42px rgba(0, 0, 0, .42);
+      --field: rgba(255, 255, 255, .03);
       --ring: rgba(69, 219, 246, .30);
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
     }
 
     :root[data-theme="light"] {
@@ -66,8 +62,8 @@
       margin: 0;
       min-height: 100vh;
       background:
-        radial-gradient(circle at 100% 0%, rgba(69, 219, 246, .11), transparent 30%),
-        radial-gradient(circle at 0% 100%, rgba(22, 184, 216, .08), transparent 28%),
+        radial-gradient(circle at 100% 0%, rgba(69, 219, 246, .06), transparent 30%),
+        radial-gradient(circle at 0% 100%, rgba(22, 184, 216, .04), transparent 28%),
         var(--bg);
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -109,7 +105,22 @@
 
     .title-wrap {
       min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 11px;
     }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      border-radius: 13px;
+      object-fit: cover;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .22);
+    }
+
+    .brand-arten { color: #fff; }
+    .brand-fit { color: #45DBF6; }
 
     .eyebrow {
       margin: 0 0 4px;
@@ -278,8 +289,8 @@
 
     .exercise-card {
       border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--card);
+      border-radius: 26px;
+      background: linear-gradient(180deg, var(--card), var(--card-strong));
       box-shadow: 0 12px 28px rgba(0, 0, 0, .10);
       padding: 14px;
     }
@@ -373,6 +384,73 @@
       gap: 8px;
       margin-top: 13px;
     }
+    .series-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(145, 185, 200, .12);
+    }
+
+    .series-meta {
+      min-width: 0;
+    }
+
+    .series-meta small {
+      display: block;
+      color: var(--muted);
+      font-size: .66rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-weight: 800;
+      margin-bottom: 3px;
+    }
+
+    .series-meta strong {
+      display: block;
+      color: var(--text);
+      font-size: .92rem;
+      font-weight: 900;
+      letter-spacing: -.02em;
+    }
+
+    .series-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .series-btn {
+      min-width: 40px;
+      min-height: 34px;
+      padding: 0 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(145, 185, 200, .18);
+      background: rgba(255, 255, 255, .03);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 900;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease, opacity .15s ease;
+    }
+
+    .series-btn:active {
+      transform: scale(.98);
+    }
+
+    .series-btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .series-btn.plus {
+      color: var(--accent);
+      border-color: rgba(67, 217, 246, .18);
+      background: rgba(67, 217, 246, .08);
+    }
+
 
     .mini-field label {
       display: block;
@@ -586,7 +664,7 @@
 
     .bottom-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 8px;
     }
     .bottom-actions .ghost-btn,
@@ -608,41 +686,6 @@
       text-align: center;
     }
 
-    .bottom-panel { margin-top: 18px; padding-bottom: 12px; }
-    .utility-bar {
-      position: fixed;
-      z-index: 50;
-      left: 0; right: 0; bottom: 0;
-      display: grid;
-      grid-template-columns: auto 1fr 1fr;
-      align-items: center;
-      gap: 8px;
-      padding: 10px max(14px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
-      background: rgba(0, 25, 48, 0.7);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(0, 229, 255, .16);
-    }
-    .utility-timer {
-      color: var(--text); font-size: .78rem; font-weight: 900;
-      letter-spacing: .02em; white-space: nowrap;
-      padding: 8px 9px; border-radius: 10px;
-      background: #002548; border: 1px solid rgba(0,229,255,.2);
-      font-variant-numeric: tabular-nums;
-    }
-    .utility-bar button { min-height: 42px; padding: 0 10px; border-radius: 12px; font-size: .76rem; white-space: nowrap; }
-    .utility-start { min-width: 0; }
-    .utility-stats { min-width: 0; }
-    main { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
-    .app-header { background: rgba(0,25,48,.92); }
-    :root[data-theme="light"] { color-scheme: dark; --bg:#001930; --bg2:#002548; --surface:#002548; --surface-2:#002548; --surface-3:#002548; --card:#002548; --card-strong:#002548; --text:#eef7fb; --muted:#92acb9; --accent:#00e5ff; --accent-2:#00adb5; --accent-soft:rgba(0,229,255,.11); --danger:#ff7589; --danger-soft:rgba(255,117,137,.12); --field:rgba(4,17,24,.34); --ring:rgba(0,229,255,.30); }
-    @media (max-width: 380px) {
-      .utility-bar { grid-template-columns: auto 1fr; }
-      .utility-stats { grid-column: 1 / -1; min-height: 34px !important; }
-      .utility-timer { justify-self: start; }
-      .utility-start { justify-self: stretch; }
-      main { padding-bottom: calc(118px + env(safe-area-inset-bottom)); }
-    }
     .toast {
       position: fixed;
       left: 50%;
@@ -792,27 +835,6 @@
       font-weight: 850;
       white-space: nowrap;
     }
-    .history-delete {
-      flex: 0 0 auto;
-      border: 1px solid rgba(255, 100, 120, .35);
-      border-radius: 10px;
-      background: rgba(255, 80, 105, .10);
-      color: #ff8295;
-      padding: 8px 10px;
-      font: inherit;
-      font-size: .75rem;
-      font-weight: 800;
-      cursor: pointer;
-      transition: background .2s ease, border-color .2s ease;
-    }
-    .history-delete:hover {
-      background: rgba(255, 80, 105, .20);
-      border-color: rgba(255, 100, 120, .6);
-    }
-    .history-delete:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
 
     body.rest-flash::before {
       content: "";
@@ -870,7 +892,8 @@
     <div class="shell">
       <div class="header-row">
         <div class="title-wrap">
-          <h1 aria-label="Arten Fit"><span style="color:#eef7fb">Arten</span> <span style="color:#00e5ff">Fit</span></h1>
+          <img class="brand-logo" src="logo-arten-fit.png" alt="Logo Arten Fit" />
+          <h1><span class="brand-arten">Arten</span> <span class="brand-fit">Fit</span></h1>
         </div>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar tema" aria-pressed="false">
           <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -939,16 +962,24 @@
           </form>
         </div>
 
+        <div class="panel-card">
+          <div class="timer-bar">
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+            <div class="timer-actions">
+              <button class="primary-btn" id="workoutToggleBtn" type="button">Começar Treino</button>
+              <button class="ghost-btn" id="resetTimerBtn" type="button">Zerar</button>
+            </div>
+          </div>
+          <div class="bottom-actions">
+            <button class="ghost-btn" id="openStatsBtn" type="button">Ver Estatísticas</button>
+          </div>
+        </div>
+
         <p class="note">Seus dados ficam salvos neste navegador via localStorage.</p>
       </section>
     </div>
   </main>
 
-  <nav class="utility-bar" aria-label="Controles do treino">
-    <div class="utility-timer" id="timerDisplay">00:00:00</div>
-    <button class="primary-btn utility-start" id="workoutToggleBtn" type="button">Começar Treino</button>
-    <button class="ghost-btn utility-stats" id="openStatsBtn" type="button">Ver Estatísticas</button>
-  </nav>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <section class="stats-modal" id="statsModal" aria-hidden="true" aria-label="Estatísticas de carga">
@@ -1006,6 +1037,7 @@
       const dayMeta = $('dayMeta');
       const timerDisplay = $('timerDisplay');
       const workoutToggleBtn = $('workoutToggleBtn');
+      const resetTimerBtn = $('resetTimerBtn');
       const openStatsBtn = $('openStatsBtn');
       const addForm = $('addForm');
       const newName = $('newName');
@@ -1029,6 +1061,98 @@
       let toastTimer = null;
       let chart = null;
       const restTimers = new Map();
+      const nativeBridge = window.AndroidRestBridge || null;
+      const NATIVE_REST_PENDING_KEY = 'meuTreino.nativeRestPending.v2';
+      const NATIVE_REST_HANDLED_KEY = 'meuTreino.nativeRestHandled.v2';
+      let nativeRestPoll = null;
+      let lastNativeRestId = null;
+      let nativeStartGraceUntil = 0;
+
+      function getNativeRestState() {
+        if (!nativeBridge || typeof nativeBridge.getCurrentRestState !== 'function') return null;
+        try {
+          const raw = nativeBridge.getCurrentRestState();
+          return raw ? JSON.parse(raw) : null;
+        } catch (error) {
+          console.warn('Não foi possível ler o descanso nativo.', error);
+          return null;
+        }
+      }
+
+      function flashRestScreenOnly() {
+        document.body.classList.add('rest-flash');
+        setTimeout(() => document.body.classList.remove('rest-flash'), 1500);
+      }
+
+      function hydrateNativeRestState(showToastOnFinish = false) {
+        if (!nativeBridge) return;
+        const session = getNativeRestState();
+        if (!session) return;
+
+        // Durante a troca, o serviço pode ainda devolver por alguns milissegundos
+        // a sessão anterior. Não a reaplique sobre o exercício recém-selecionado.
+        if (Date.now() < nativeStartGraceUntil) {
+          const expectedId = (() => {
+            try { return localStorage.getItem(NATIVE_REST_PENDING_KEY) || ''; }
+            catch (_) { return ''; }
+          })();
+          if (!session.activeId || (expectedId && session.activeId !== expectedId)) return;
+        }
+
+        if (session.activeId) {
+          // Há apenas um descanso nativo ativo por vez.
+          for (const [otherId, otherTimer] of [...restTimers.entries()]) {
+            if (otherId !== session.activeId && otherTimer.native) {
+              if (otherTimer.interval) clearInterval(otherTimer.interval);
+              restTimers.delete(otherId);
+              syncRestButton(otherId);
+            }
+          }
+
+          const timer = restTimers.get(session.activeId) || {
+            running: true, interval: null, btn: null, skipBtn: null, native: true
+          };
+          timer.running = true;
+          timer.remaining = Math.max(0, Number(session.remainingSeconds) || 0);
+          timer.native = true;
+          timer.exerciseName = session.exerciseName || timer.exerciseName || '';
+          restTimers.set(session.activeId, timer);
+          lastNativeRestId = session.activeId;
+          nativeStartGraceUntil = 0;
+          try { localStorage.setItem(NATIVE_REST_PENDING_KEY, session.activeId); } catch (_) {}
+          syncRestButton(session.activeId);
+          return;
+        }
+
+        const pendingId = (() => {
+          try { return localStorage.getItem(NATIVE_REST_PENDING_KEY) || ''; }
+          catch (_) { return ''; }
+        })();
+        const endedId = lastNativeRestId || pendingId;
+        if (!endedId) return;
+        // startForegroundService é assíncrono; não interprete a janela inicial como cancelamento.
+        if (Date.now() < nativeStartGraceUntil) return;
+
+        const timer = restTimers.get(endedId);
+        if (timer?.interval) clearInterval(timer.interval);
+        restTimers.delete(endedId);
+        lastNativeRestId = null;
+        nativeStartGraceUntil = 0;
+        try { localStorage.removeItem(NATIVE_REST_PENDING_KEY); } catch (_) {}
+        syncRestButton(endedId);
+
+        const completedId = String(session.completedId || '');
+        const completedAt = Number(session.completedAt) || 0;
+        const completionKey = completedId && completedAt ? `${completedId}:${completedAt}` : '';
+        let handledKey = '';
+        try { handledKey = localStorage.getItem(NATIVE_REST_HANDLED_KEY) || ''; } catch (_) {}
+        if (completedId === endedId && completionKey && completionKey !== handledKey) {
+          try { localStorage.setItem(NATIVE_REST_HANDLED_KEY, completionKey); } catch (_) {}
+          bumpSeriesDone(endedId, 1);
+          flashRestScreenOnly();
+          if (showToastOnFinish) showToast('O descanso terminou.');
+        }
+      }
 
 
       function uid() {
@@ -1041,7 +1165,7 @@
       }
 
       function sampleState() {
-        const make = (name, sets, reps, weight) => ({ id: uid(), name, sets: String(sets), reps, weight, done: false });
+        const make = (name, sets, reps, weight) => ({ id: uid(), name, sets: String(sets), reps, weight, done: false, seriesDone: 0 });
         return {
           version: 3,
           activeDay: 'segunda',
@@ -1102,7 +1226,8 @@
             sets: String(item.sets ?? '3'),
             reps: String(item.reps ?? '10–12'),
             weight: String(item.weight ?? ''),
-            done: Boolean(item.done)
+            done: Boolean(item.done),
+            seriesDone: Number.isFinite(Number(item.seriesDone)) ? Math.max(0, Number(item.seriesDone)) : 0
           }));
         }
 
@@ -1151,6 +1276,25 @@
         return DAYS.find(day => day.id === activeDay) || DAYS[0];
       }
 
+      function findExerciseById(id) {
+        for (const day of DAYS) {
+          const exercise = state.workouts[day.id].find(item => item.id === id);
+          if (exercise) return { dayId: day.id, exercise };
+        }
+        return null;
+      }
+
+      function bumpSeriesDone(id, amount = 1) {
+        const found = findExerciseById(id);
+        if (!found) return;
+        const target = Math.max(0, Number(found.exercise.sets) || 0);
+        const current = Math.max(0, Number(found.exercise.seriesDone) || 0);
+        found.exercise.seriesDone = Math.min(target, current + amount);
+        saveState();
+        renderExercises();
+        if (statsModal.classList.contains('open')) refreshStats();
+      }
+
       function esc(value) {
         return String(value).replace(/[&<>"]|'/g, (m) => ({
           '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -1169,7 +1313,8 @@
         document.documentElement.dataset.theme = isLight ? 'light' : 'dark';
         themeToggle.setAttribute('aria-pressed', String(isLight));
         themeToggle.title = isLight ? 'Tema claro ativo' : 'Tema escuro ativo';
-        document.querySelector('meta[name=\"theme-color\"]')?.setAttribute('content', isLight ? '#eef4f8' : '#071923');
+        document.documentElement.style.colorScheme = isLight ? 'light' : 'dark';
+        document.querySelector('meta[name=\"theme-color\"]')?.setAttribute('content', isLight ? '#eef4f8' : '#05070a');
         themeIcon.innerHTML = isLight
           ? '<path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.7 8.7 0 1 0 10.7 10.7Z"></path>'
           : '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>';
@@ -1273,37 +1418,92 @@
 
           head.append(check, name, remove);
 
+          let syncSeries = () => {};
+
           const fields = document.createElement('div');
           fields.className = 'exercise-fields';
           fields.append(
-            field('Séries', exercise.sets, 'text', 'sets', exercise),
+            field('Séries', exercise.sets, 'number', 'sets', exercise, '', () => {
+              const target = Math.max(0, Number(exercise.sets) || 0);
+              exercise.seriesDone = Math.min(Math.max(0, Number(exercise.seriesDone) || 0), target);
+              syncSeries();
+            }),
             field('Repetições', exercise.reps, 'text', 'reps', exercise),
             field('Peso atual', exercise.weight, 'text', 'weight', exercise, 'Ex.: 25 kg')
           );
+
+          const seriesRow = document.createElement('div');
+          seriesRow.className = 'series-row';
+          const seriesMeta = document.createElement('div');
+          seriesMeta.className = 'series-meta';
+          seriesMeta.innerHTML = '<small>Séries feitas</small><strong class="series-value"></strong>';
+          const seriesValue = seriesMeta.querySelector('.series-value');
+          const seriesControls = document.createElement('div');
+          seriesControls.className = 'series-controls';
+
+          const minusSeries = document.createElement('button');
+          minusSeries.type = 'button';
+          minusSeries.className = 'series-btn';
+          minusSeries.textContent = '−';
+
+          const plusSeries = document.createElement('button');
+          plusSeries.type = 'button';
+          plusSeries.className = 'series-btn plus';
+          plusSeries.textContent = '+1';
+
+          const updateSeries = () => {
+            const target = Math.max(0, Number(exercise.sets) || 0);
+            const done = Math.max(0, Number(exercise.seriesDone) || 0);
+            const safeDone = Math.min(done, target);
+            seriesValue.textContent = `${safeDone}/${target}`;
+            minusSeries.disabled = safeDone <= 0;
+            plusSeries.disabled = target <= 0 || safeDone >= target;
+          };
+
+          syncSeries = updateSeries;
+
+          minusSeries.addEventListener('click', () => {
+            exercise.seriesDone = Math.max(0, (Number(exercise.seriesDone) || 0) - 1);
+            updateSeries();
+            saveState();
+            if (statsModal.classList.contains('open')) refreshStats();
+          });
+
+          plusSeries.addEventListener('click', () => {
+            const target = Math.max(0, Number(exercise.sets) || 0);
+            exercise.seriesDone = Math.min(target, (Number(exercise.seriesDone) || 0) + 1);
+            updateSeries();
+            saveState();
+            if (statsModal.classList.contains('open')) refreshStats();
+          });
+
+          seriesControls.append(minusSeries, plusSeries);
+          seriesRow.append(seriesMeta, seriesControls);
 
           const restRow = document.createElement('div');
           restRow.className = 'rest-row';
           const restBtn = document.createElement('button');
           restBtn.type = 'button';
           restBtn.className = 'rest-btn';
-          restBtn.textContent = 'Descansar (60s)';
+          restBtn.textContent = 'Descansar (1:30)';
           const skipBtn = document.createElement('button');
           skipBtn.type = 'button';
           skipBtn.className = 'skip-btn';
           skipBtn.textContent = 'Pular';
           skipBtn.hidden = true;
           restBtn.addEventListener('click', () => startRestTimer(exercise.id, restBtn, skipBtn));
-          skipBtn.addEventListener('click', () => clearRestTimer(exercise.id, true));
+          skipBtn.addEventListener('click', () => clearRestTimer(exercise.id, { silent: true, countSeries: true, toast: 'Descanso pulado.' }));
           restRow.append(restBtn, skipBtn);
 
-          card.append(head, fields, restRow);
+          card.append(head, fields, seriesRow, restRow);
           exerciseList.appendChild(card);
 
           syncRestButton(exercise.id);
+          updateSeries();
         });
       }
 
-      function field(labelText, value, type, fieldName, exercise, placeholder = '') {
+      function field(labelText, value, type, fieldName, exercise, placeholder = '', afterChange = null) {
         const wrap = document.createElement('div');
         wrap.className = 'mini-field';
         const label = document.createElement('label');
@@ -1321,6 +1521,7 @@
         }
         input.addEventListener('input', () => {
           exercise[fieldName] = input.value;
+          if (typeof afterChange === 'function') afterChange();
           saveState();
           if (statsModal.classList.contains('open')) refreshStats();
         });
@@ -1337,11 +1538,15 @@
         if (!btn || !skip) return;
         if (timer && timer.running) {
           btn.classList.add('is-running');
-          btn.textContent = `Descanso: ${timer.remaining}s`;
+          const seconds = Math.max(0, Number(timer.remaining) || 0);
+          const label = seconds >= 60
+            ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
+            : `${seconds}s`;
+          btn.textContent = `Descanso: ${label}`;
           skip.hidden = false;
         } else {
           btn.classList.remove('is-running');
-          btn.textContent = 'Descansar (60s)';
+          btn.textContent = 'Descansar (1:30)';
           skip.hidden = true;
         }
       }
@@ -1349,45 +1554,119 @@
       function startRestTimer(id, btn, skipBtn) {
         const existing = restTimers.get(id);
         if (existing?.running) return;
-        clearRestTimer(id, false);
+
+        // Só um descanso fica ativo por vez. Ao trocar de exercício, limpe primeiro
+        // os timers visuais/locais, sem mandar CANCEL ao serviço nativo. O CANCEL
+        // seguido imediatamente de START podia parar o serviço durante a troca e
+        // provocar crash no Android. O próximo START substitui a sessão atomicamente.
+        const previousNativeIds = [];
+        for (const otherId of [...restTimers.keys()]) {
+          const otherTimer = restTimers.get(otherId);
+          if (otherTimer?.native) previousNativeIds.push(otherId);
+          if (otherTimer?.interval) clearInterval(otherTimer.interval);
+          restTimers.delete(otherId);
+          syncRestButton(otherId);
+        }
+
+        if (nativeBridge && typeof nativeBridge.startRestTimer === 'function') {
+          const exercise = findExerciseById(id)?.exercise;
+          const name = exercise?.name || '';
+          const timer = {
+            running: true,
+            remaining: 90,
+            interval: null,
+            btn,
+            skipBtn,
+            native: true,
+            exerciseName: name,
+            startedAt: Date.now()
+          };
+          restTimers.set(id, timer);
+          lastNativeRestId = id;
+          nativeStartGraceUntil = Date.now() + 2500;
+          try { localStorage.setItem(NATIVE_REST_PENDING_KEY, id); } catch (_) {}
+          try {
+            nativeBridge.startRestTimer(id, name, 90);
+            syncRestButton(id);
+            window.setTimeout(() => hydrateNativeRestState(false), 250);
+            return;
+          } catch (error) {
+            console.warn('Falha ao iniciar o descanso nativo; usando contador local.', error);
+            // Se a troca nativa falhar, encerra qualquer sessão anterior que ainda
+            // possa estar ativa antes de recorrer ao timer local.
+            for (const previousId of previousNativeIds) {
+              try { nativeBridge.cancelRestTimer(previousId); } catch (_) {}
+            }
+            timer.native = false;
+            lastNativeRestId = null;
+            nativeStartGraceUntil = 0;
+            try { localStorage.removeItem(NATIVE_REST_PENDING_KEY); } catch (_) {}
+          }
+        }
+
         const timer = {
           running: true,
-          remaining: 60,
+          remaining: 90,
           interval: null,
           btn,
-          skipBtn
+          skipBtn,
+          native: false,
+          startedAt: Date.now()
         };
         restTimers.set(id, timer);
         syncRestButton(id);
         timer.interval = setInterval(() => {
-          timer.remaining -= 1;
+          timer.remaining = Math.max(0, Math.ceil((timer.startedAt + 90000 - Date.now()) / 1000));
           syncRestButton(id);
           if (timer.remaining <= 0) {
-            clearRestTimer(id, false);
-            flashAndBeep();
-            showToast('O descanso terminou.');
+            clearRestTimer(id, { countSeries: true, vibrate: true, toast: 'O descanso terminou.' });
           }
-        }, 1000);
+        }, 250);
       }
 
-      function clearRestTimer(id, silent) {
+      function clearRestTimer(id, options = {}) {
         const timer = restTimers.get(id);
-        if (!timer) return;
-        if (timer.interval) clearInterval(timer.interval);
-        restTimers.delete(id);
+        const normalized = typeof options === 'boolean' ? { silent: options } : (options || {});
+        const {
+          silent = false,
+          countSeries = false,
+          vibrate = false,
+          toast = ''
+        } = normalized;
+
+        if (timer?.native && nativeBridge && typeof nativeBridge.cancelRestTimer === 'function') {
+          try { nativeBridge.cancelRestTimer(id); }
+          catch (error) { console.warn('Não foi possível cancelar o descanso nativo.', error); }
+          if (lastNativeRestId === id) lastNativeRestId = null;
+          nativeStartGraceUntil = 0;
+          try { localStorage.removeItem(NATIVE_REST_PENDING_KEY); } catch (_) {}
+        }
+
+        if (timer?.interval) clearInterval(timer.interval);
+        if (timer) restTimers.delete(id);
         syncRestButton(id);
-        if (!silent) return;
+
+        if (countSeries) bumpSeriesDone(id, 1);
+        if (toast) showToast(toast);
+        if (vibrate) {
+          if (timer?.native) flashRestScreenOnly();
+          else flashAndVibrate();
+        }
+        if (silent) return;
       }
 
-      function flashAndBeep() {
-        // O iPhone/Safari pode não oferecer vibração em páginas web.
-        // Mantém o aviso visual e tenta o padrão de vibração quando suportado.
+      function flashAndVibrate() {
         document.body.classList.add('rest-flash');
         setTimeout(() => document.body.classList.remove('rest-flash'), 1500);
+
+        // O iOS Safari geralmente não oferece suporte a navigator.vibrate.
+        // Em navegadores compatíveis, solicita duas vibrações de 280 ms com pausa de 160 ms.
         try {
-          if (navigator.vibrate) navigator.vibrate([280, 160, 280]);
+          if (typeof navigator.vibrate === 'function') {
+            navigator.vibrate([280, 160, 280]);
+          }
         } catch (error) {
-          console.warn(error);
+          console.warn('A vibração não está disponível neste navegador.', error);
         }
       }
 
@@ -1427,8 +1706,8 @@
             weight: ex.weight
           }))
         });
-        list.forEach(ex => { ex.done = false; });
-        for (const key of [...restTimers.keys()]) clearRestTimer(key, false);
+        list.forEach(ex => { ex.done = false; ex.seriesDone = 0; });
+        for (const key of [...restTimers.keys()]) clearRestTimer(key, { silent: true });
         stopWorkoutTimer();
         saveState();
         renderDays();
@@ -1496,7 +1775,7 @@
           const date = new Date(entry.date);
           const label = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).format(date);
           const count = entry.exercises?.length || 0;
-          item.innerHTML = `<div><strong>${esc(entry.dayLabel)}</strong><span>${esc(label)} · ${count} exercício${count === 1 ? '' : 's'}</span></div><button class="history-delete" type="button" data-delete-history="${esc(entry.id)}" aria-label="Excluir treino de ${esc(label)}">Excluir</button>`;
+          item.innerHTML = `<div><strong>${esc(entry.dayLabel)}</strong><span>${esc(label)} · ${count} exercício${count === 1 ? '' : 's'}</span></div><em>Salvo</em>`;
           historyList.appendChild(item);
         });
       }
@@ -1529,11 +1808,11 @@
               data,
               tension: .35,
               borderWidth: 3,
-              borderColor: '#00e5ff',
-              backgroundColor: 'rgba(0,229,255,.12)',
+              borderColor: '#45dbf6',
+              backgroundColor: 'rgba(69,219,246,.12)',
               pointRadius: 4,
               pointHoverRadius: 6,
-              pointBackgroundColor: '#00e5ff',
+              pointBackgroundColor: '#45dbf6',
               pointBorderColor: '#eaffff',
               fill: true
             }]
@@ -1546,7 +1825,7 @@
               legend: { display: false },
               tooltip: {
                 backgroundColor: 'rgba(5, 15, 21, .94)',
-                borderColor: 'rgba(0,229,255,.34)',
+                borderColor: 'rgba(69,219,246,.34)',
                 borderWidth: 1,
                 titleColor: '#fff',
                 bodyColor: '#fff'
@@ -1608,6 +1887,10 @@
         }
       });
 
+      resetTimerBtn.addEventListener('click', () => {
+        stopWorkoutTimer();
+        showToast('Cronômetro zerado.');
+      });
 
       addForm.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -1618,7 +1901,7 @@
         if (!name) return newName.focus();
         if (!sets || Number(sets) < 1 || Number(sets) > 99) return newSets.focus();
         if (!reps) return newReps.focus();
-        state.workouts[activeDay].push({ id: uid(), name, sets, reps, weight, done: false });
+        state.workouts[activeDay].push({ id: uid(), name, sets, reps, weight, done: false, seriesDone: 0 });
         saveAndRender();
         addForm.reset();
         newSets.value = '3';
@@ -1633,18 +1916,6 @@
         if (event.target === statsModal) closeStats();
       });
       exerciseSelect.addEventListener('change', () => renderChart(exerciseSelect.value));
-      historyList.addEventListener('click', (event) => {
-        const button = event.target.closest('[data-delete-history]');
-        if (!button) return;
-        const entryId = button.dataset.deleteHistory;
-        const entry = state.history.find(item => item.id === entryId);
-        if (!entry) return;
-        if (!window.confirm('Deseja excluir este treino do histórico? Esta ação não pode ser desfeita.')) return;
-        state.history = state.history.filter(item => item.id !== entryId);
-        saveState();
-        refreshStats();
-        showToast('Treino removido do histórico.');
-      });
 
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && statsModal.classList.contains('open')) closeStats();
@@ -1652,23 +1923,24 @@
 
       function init() {
         activeDay = state.activeDay || 'segunda';
+        applyTheme(state.theme === 'light' ? 'light' : 'dark', false);
         renderDays();
         renderExercises();
         updateProgress();
-        if (state.theme === 'light') applyTheme('light', false);
-        else applyTheme('dark', false);
       }
 
       init();
       saveState();
+      if (nativeBridge) {
+        hydrateNativeRestState(false);
+        nativeRestPoll = window.setInterval(() => hydrateNativeRestState(true), 1000);
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) hydrateNativeRestState(false);
+        });
+        window.addEventListener('focus', () => hydrateNativeRestState(false));
+        window.addEventListener('pageshow', () => hydrateNativeRestState(false));
+      }
     })();
-
-    // Registra o cache do app para carregamento mais confiável no iPhone.
-    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('Service worker indisponível:', error));
-      });
-    }
   </script>
 </body>
 </html>
